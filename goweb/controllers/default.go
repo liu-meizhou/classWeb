@@ -8,12 +8,12 @@ type MainController struct {
 	web.Controller
 }
 
+func (this *MainController) Get() {
+	this.Ctx.WriteString("hello")
+}
+
 //func (this *MainController) Get() {
 //	this.Data["Website"] = "beego.me"
 //	this.Data["Email"] = "astaxie@gmail.com"
 //	this.TplName = "index.tpl"
 //}
-
-func (this *MainController) Get() {
-	this.Ctx.WriteString("hello")
-}
