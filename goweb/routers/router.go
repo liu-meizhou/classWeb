@@ -6,6 +6,8 @@ import (
 	"goweb/controllers"
 )
 
+// 相关路由配置: https://beego.me/docs/mvc/controller/router.md
+
 func init() {
 	// 支持 基本路由, 固定路由和正则路由
 	web.Get("/index", func(ctx *context.Context){
@@ -27,9 +29,10 @@ func init() {
 			// 执行controller后执行该函数
 			//web.NSAfter(func),
 			// 下面都是设置路由
-			web.NSGet("/get", func(ctx *context.Context) {
-				ctx.Output.Body([]byte("游客get"))
+			web.NSGet("/nsGet", func(ctx *context.Context) {
+				ctx.Output.Body([]byte("游客nsGet"))
 			}),
+			web.NSRouter("/get", &controllers.VisitorController{}),
 			web.NSRouter("/version", &controllers.VisitorController{}, "get:ShowAPIVersion"),
 			// 命名空间内嵌套命名空间
 			web.NSNamespace("/show",

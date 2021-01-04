@@ -4,6 +4,11 @@ import (
 	"github.com/beego/beego/v2/server/web"
 )
 
+// 相关控制器操作 https://beego.me/docs/mvc/controller/controller.md
+// 获取参数: https://beego.me/docs/mvc/controller/params.md
+// Session 控制: https://beego.me/docs/mvc/controller/session.md
+//
+
 type MainController struct {
 	web.Controller
 }
