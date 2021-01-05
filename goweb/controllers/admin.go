@@ -12,6 +12,6 @@ func (this *AdminController) Get() {
 	this.Ctx.WriteString("管理员get")
 }
 
-func(this *AdminController) ShowAPIVersion() {
+func (this *AdminController) ShowAPIVersion() {
 	this.Ctx.WriteString("管理员V1版本")
 }

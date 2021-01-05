@@ -15,7 +15,7 @@ var FilterUser = func(ctx *context.Context) {
 
 }
 
-func init()  {
+func init() {
 	// 配置过滤器规则基本和路由一致
 	web.InsertFilter("/*", web.BeforeRouter, FilterUser)
 }

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/beego/beego/v2/server/web"
+	"goweb/utils"
 )
 
 // 相关控制器操作 https://beego.me/docs/mvc/controller/controller.md
@@ -14,7 +15,8 @@ type MainController struct {
 }
 
 func (this *MainController) Get() {
-	this.Ctx.WriteString("hello")
+	this.Data["json"] = utils.NewReturnJson(200, "V1版本", "success")
+	this.ServeJSON()
 }
 
 //func (this *MainController) Get() {

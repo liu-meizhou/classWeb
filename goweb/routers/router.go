@@ -1,3 +1,7 @@
+// @APIVersion 1.0.0
+// @Title mobile API
+// @Description mobile has every tool to get any job done, so codename for the new mobile APIs.
+// @Contact 1834327029@qq.com
 package routers
 
 import (
@@ -9,13 +13,6 @@ import (
 // 相关路由配置: https://beego.me/docs/mvc/controller/router.md
 
 func init() {
-	// 支持 基本路由, 固定路由和正则路由
-	web.Get("/index", func(ctx *context.Context){
-		ctx.Output.Body([]byte("hello world"))
-	})
-	web.Router("/", &controllers.MainController{}, "get:Get;post:Get;*:Get")
-	web.Router("/api/?:id", &controllers.MainController{})
-
 	// 命名空间配置路由
 	//初始化 游客命名空间
 	visitor :=
@@ -42,26 +39,24 @@ func init() {
 				}),
 			),
 		)
-	//注册 namespace
 	web.AddNamespace(visitor)
-	//初始化 登录用户命名空间
+
+	// 登录用户命名空间
 	user :=
-		web.NewNamespace("/user/v1",
+		web.NewNamespace("/student/v1",
 			web.NSCond(func(ctx *context.Context) bool {
 				return true
 			}),
-			web.NSGet("/get", func(ctx *context.Context) {
-				ctx.Output.Body([]byte("登录用户get"))
-			}),
-			web.NSRouter("/version", &controllers.UserController{}, "get:ShowAPIVersion"),
-			web.NSNamespace("/show",
-				web.NSGet("/:id", func(ctx *context.Context) {
-					ctx.Output.Body([]byte("展示登录用户"))
-				}),
+			web.NSRouter("/version", &controllers.MainController{}),
+			web.NSNamespace("/course",
+				web.NSRouter("/show", &controllers.UserController{}, "get:GetCourse"),
+				web.NSRouter("/export", &controllers.UserController{}, "get:ExportCourse"),
+				web.NSRouter("/choose", &controllers.UserController{}, "get,post:ChooseCourse"),
+				web.NSRouter("/grade", &controllers.UserController{}, "get,post:CourseGrade"),
 			),
 		)
-	//注册 namespace
 	web.AddNamespace(user)
+
 	//初始化 admin命名空间
 	admin :=
 		web.NewNamespace("/admin/v1",
