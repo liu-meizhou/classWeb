@@ -14,3 +14,19 @@ func NewReturnJson(code int, data interface{}, message string) *ReturnJson {
 		message,
 	}
 }
+
+func SuccessReJson(data interface{}) *ReturnJson{
+	return NewReturnJson(200, data, "success")
+}
+
+func ErrorReJson(data interface{}) *ReturnJson{
+	return NewReturnJson(500, data, "error")
+}
+
+func NoFoundReJson(data interface{}) *ReturnJson{
+	return NewReturnJson(404, data, "noFound")
+}
+
+func NoIdentifyReJson(data interface{}) *ReturnJson{
+	return NewReturnJson(401, data, "无权限")
+}

@@ -7,16 +7,25 @@ import (
 	_ "github.com/lib/pq"
 	"goweb/models"
 	_ "goweb/routers"
+	"os"
 	"time"
 )
 
 func init() {
 	// need to register db driver
-	orm.RegisterDriver("postgres", orm.DRPostgres)
+	err := orm.RegisterDriver("postgres", orm.DRPostgres)
+	if err != nil {
+		logs.Error(err)
+		os.Exit(-1)
+	}
 
 	// need to register default database
-	orm.RegisterDataBase("default", "postgres",
+	err = orm.RegisterDataBase("default", "postgres",
 		"postgresql://postgres:123456@42.193.143.9:5432/postgres?sslmode=disable")
+	if err != nil {
+		logs.Error(err)
+		os.Exit(-1)
+	}
 }
 
 func genDB() {
@@ -24,6 +33,7 @@ func genDB() {
 	err := orm.RunSyncdb("default", true, true)
 	if err != nil {
 		logs.Info(err)
+		os.Exit(-1)
 	}
 	o := orm.NewOrm()
 
@@ -51,7 +61,7 @@ func genDB() {
 	}
 	// 创建老师 杨朔
 	teacherInfo2 := new(models.TeacherInfo)
-	teacherInfo2.TeacherId = 1
+	teacherInfo2.TeacherId = 111666
 	teacherInfo2.TeacherName = "杨朔"
 	teacherInfo2.TeacherSex = "男"
 	teacherInfo2.TeacherCollege = "计算机学院"
@@ -150,7 +160,7 @@ func genDB() {
 	// 创建学生课程关系1 刘佳合  软件工程导论
 	courseStudentRel1 := new(models.CourseStudentRel)
 	courseStudentRel1.Student = studentInfo1
-	courseBaseInfo1.Course = courseInfo2
+	courseStudentRel1.Course = courseInfo2
 	_, err = o.Insert(courseStudentRel1)
 	if err != nil {
 		logs.Info(err)
@@ -246,7 +256,7 @@ func main() {
 
 	// 生成数据库
 	orm.Debug = true
-	genDB()
+	//genDB()
 
 	// 启动web
 	web.Run()

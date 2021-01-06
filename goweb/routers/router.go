@@ -43,10 +43,8 @@ func init() {
 
 	// 登录用户命名空间
 	user :=
-		web.NewNamespace("/student/v1",
-			web.NSCond(func(ctx *context.Context) bool {
-				return true
-			}),
+		web.NewNamespace("/user/v1",
+			web.NSCond(controllers.Identify),
 			web.NSRouter("/version", &controllers.MainController{}),
 			web.NSNamespace("/course",
 				web.NSRouter("/show", &controllers.UserController{}, "get:GetCourse"),

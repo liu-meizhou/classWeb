@@ -15,6 +15,14 @@ import (
 人工智能编程语言/(1-4节)1-16周/大学城 电子楼516人工智能/许鹏/(2020-2021-1)-200602001-1/计科182/专业选修课程/考查/无/4/64/2.0
 */
 
+//// RoleInfo 角色信息表
+//type RoleInfo struct {
+//	RoleId	      int           `orm:"pk"`                                                  // 主键号,id,主键
+//	RoleName    string        `orm:"size(50)"`                                            // 角色名字 Admin,学生,老师,系主任
+//	CreatedTime    time.Time     `orm:"auto_now_add;type(datetime)"`
+//	UpdatedTime    time.Time     `orm:"auto_now;type(datetime)"`
+//}
+
 // StudentInfo 学生信息表
 type StudentInfo struct {
 	StudentId      int           `orm:"pk"`                                                  // 学生学号,id,主键
@@ -23,8 +31,8 @@ type StudentInfo struct {
 	StudentName    string        `orm:"size(50)"`                                            // 学生名字
 	StudentSex     string        `orm:"size(10)"`                                            // 学生性别
 	StudentCollege string        `orm:"size(50)"`                                            // 学生所在学院
-	StudentBirth   time.Time     `orm:"auto_now;type(datetime)"`                            // 学生出生日期
-	StudentTime    time.Time     `orm:"auto_now_add;type(datetime)"`                        // 学生入学日期
+	StudentBirth   time.Time     `orm:"auto_now;type(datetime)"`                             // 学生出生日期
+	StudentTime    time.Time     `orm:"auto_now_add;type(datetime)"`                         // 学生入学日期
 	CreatedTime    time.Time     `orm:"auto_now_add;type(datetime)"`
 	UpdatedTime    time.Time     `orm:"auto_now;type(datetime)"`
 }
@@ -51,6 +59,7 @@ type TeacherInfo struct {
 	TeacherCollege string            `orm:"size(50)"`                                                // 老师所在学院
 	TeacherBirth   time.Time         `orm:"auto_now;type(datetime)"`                                 // 老师出生日期
 	TeacherTime    time.Time         `orm:"auto_now_add;type(datetime)"`                             // 老师加入学校日期
+	IsCharge       bool              `orm:"-"`
 	CreatedTime    time.Time         `orm:"auto_now_add;type(datetime)"`
 	UpdatedTime    time.Time         `orm:"auto_now;type(datetime)"`
 }
@@ -64,10 +73,12 @@ type CourseInfo struct {
 	ClassGroups      []*ClassGroupInfo `orm:"reverse(many)"`         // 该课在哪些课组中
 	CourseName       string            `orm:"size(50)"`              // 课程名
 	CourseProperties string            `orm:"size(50)"`              // 课程性质 专业必修，专业选修
-	CourseTimes      []*CourseBaseInfo `orm:"reverse(many)"`         // 上课时间地点
+	CourseBases      []*CourseBaseInfo `orm:"reverse(many)"`         // 上课时间地点
 	CourseScores     float64           `orm:"digits(4);decimals(2)"` // 课程学分
 	CourseWay        string            `orm:"size(10)"`              // 考核方式
 	CourseCount      float64           `orm:"digits(5);decimals(2)"` // 学时, 单位小时
+	StudentResults   float64           `orm:"-"`                     // 课程成绩
+	StudentPoint     float64           `orm:"-"`                     // 课程绩点
 	CreatedTime      time.Time         `orm:"auto_now_add;type(datetime)"`
 	UpdatedTime      time.Time         `orm:"auto_now;type(datetime)"`
 }
@@ -84,12 +95,12 @@ type CourseBaseInfo struct {
 	CourseWeek          int
 	CourseStartCount    int
 	CourseEndCount      int
-	CourseSchool        string `orm:"size(50)"` // 上课校区
-	CourseAddress       string `orm:"size(50)"` // 上课地点
-	CourseAddressFloor  int    // 上课楼层号
-	CourseAddressNumber int    // 上课教室号
-	CreatedTime      time.Time         `orm:"auto_now_add;type(datetime)"`
-	UpdatedTime      time.Time         `orm:"auto_now;type(datetime)"`
+	CourseSchool        string    `orm:"size(50)"` // 上课校区
+	CourseAddress       string    `orm:"size(50)"` // 上课地点
+	CourseAddressFloor  int       // 上课楼层号
+	CourseAddressNumber int       // 上课教室号
+	CreatedTime         time.Time `orm:"auto_now_add;type(datetime)"`
+	UpdatedTime         time.Time `orm:"auto_now;type(datetime)"`
 }
 
 // ClassGroupInfo 课组管理表
@@ -145,7 +156,7 @@ type CourseTeacherRel struct {
 type CourseGroupRel struct {
 	CourseGroupRelId int             `orm:"pk;auto"` // 课程与课程组表id,主键,自增
 	ClassGroup       *ClassGroupInfo `orm:"null;rel(fk);on_delete(set_null)"`
-	Course           *CourseInfo      `orm:"null;rel(fk);on_delete(set_null)"`
+	Course           *CourseInfo     `orm:"null;rel(fk);on_delete(set_null)"`
 	CreatedTime      time.Time       `orm:"auto_now_add;type(datetime)"`
 	UpdatedTime      time.Time       `orm:"auto_now;type(datetime)"`
 }

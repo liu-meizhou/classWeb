@@ -1,6 +1,4 @@
-package services
+package models
 
 type TeacherService struct {
 }
-
-

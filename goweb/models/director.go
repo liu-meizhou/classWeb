@@ -1,5 +1,6 @@
-package services
+package models
 
 type DirectorService struct {
 
 }
+

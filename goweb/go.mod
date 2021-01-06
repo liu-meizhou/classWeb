@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	github.com/beego/beego/v2 v2.0.1
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/lib/pq v1.9.0
 )
 
