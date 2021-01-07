@@ -18,7 +18,9 @@ import (
 
 // StudentInfo 学生信息表 连表优先 班级->课程
 type StudentInfo struct {
-	StudentId          string        `orm:"pk"`                                                  // 学生学号,id,主键
+	StudentId          string        `orm:"pk"` // 学生学号,id,主键
+	StudentPassword    string        // 登录密码
+	StudentType    		int        // 学生用户类型
 	Class              *ClassInfo    `orm:"null;rel(fk);on_delete(set_null)"`                    // 所在班级
 	Courses            []*CourseInfo `orm:"rel(m2m);rel_through(goweb/models.CourseStudentRel)"` // 学生拥有的课程
 	StudentName        string        `orm:"size(50)"`                                            // 学生名字
@@ -45,7 +47,9 @@ type ClassInfo struct {
 
 // TeacherInfo 老师信息表 连表优先 班级->课程->课组 (具体不知道课组的需求量)
 type TeacherInfo struct {
-	TeacherId          string            `orm:"pk"`                                                      // 教工号,id,主键
+	TeacherId          string            `orm:"pk"` // 教工号,id,主键
+	TeacherPassword    string            // 登录密码
+	TeacherType    		int        		// 老师用户类型
 	TeacherName        string            `orm:"size(50)"`                                                // 老师名字
 	Classes            []*ClassInfo      `orm:"reverse(many)"`                                           // 教学班主
 	Courses            []*CourseInfo     `orm:"rel(m2m);rel_through(goweb/models.CourseTeacherRel)"`     // 该老师教的课程
@@ -61,22 +65,22 @@ type TeacherInfo struct {
 
 // CourseInfo 课程总表 连表优先级 上课基本信息 -> 老师 -> 班级 -> 课组 -> 学生
 type CourseInfo struct {
-	CourseId          string            `orm:"pk"`                    // 课程号,id,主键
-	Students          []*StudentInfo    `orm:"reverse(many)"`         // 选该课程的学生
-	Classes           []*ClassInfo      `orm:"reverse(many)"`         // 选该课程的班级
-	Teachers          []*TeacherInfo    `orm:"reverse(many)"`         // 教该课的老师,1门课程可由多个老师来教
-	ClassGroups       []*ClassGroupInfo `orm:"reverse(many)"`         // 该课在哪些课组中
-	CourseName        string            `orm:"size(50)"`              // 课程名
-	CourseProperties  string            `orm:"size(50)"`              // 课程性质 专业必修，专业选修
-	CourseBases       []*CourseBaseInfo `orm:"reverse(many)"`         // 上课时间地点
-	CourseScores      float64           `orm:"digits(4);decimals(2)"` // 课程学分
-	CourseWay         string            `orm:"size(10)"`              // 考核方式
-	CourseCount       float64           `orm:"digits(5);decimals(2)"` // 学时, 单位小时
-	StudentResults    float64           `orm:"-"`                     // 课程成绩
-	StudentPoint      float64           `orm:"-"`                     // 课程绩点
+	CourseId         string            `orm:"pk"`                    // 课程号,id,主键
+	Students         []*StudentInfo    `orm:"reverse(many)"`         // 选该课程的学生
+	Classes          []*ClassInfo      `orm:"reverse(many)"`         // 选该课程的班级
+	Teachers         []*TeacherInfo    `orm:"reverse(many)"`         // 教该课的老师,1门课程可由多个老师来教
+	ClassGroups      []*ClassGroupInfo `orm:"reverse(many)"`         // 该课在哪些课组中
+	CourseName       string            `orm:"size(50)"`              // 课程名
+	CourseProperties string            `orm:"size(50)"`              // 课程性质 专业必修，专业选修
+	CourseBases      []*CourseBaseInfo `orm:"reverse(many)"`         // 上课时间地点
+	CourseScores     float64           `orm:"digits(4);decimals(2)"` // 课程学分
+	CourseWay        string            `orm:"size(10)"`              // 考核方式
+	CourseCount      float64           `orm:"digits(5);decimals(2)"` // 学时, 单位小时
+	StudentResults   float64           `orm:"-"`                     // 课程成绩
+	StudentPoint     float64           `orm:"-"`                     // 课程绩点
 	//StudentNumber      int           	`orm:"-"`                     // 选该课程的人数
-	CourseCreatedTime time.Time         `orm:"auto_now_add;type(datetime)"`
-	CourseUpdatedTime time.Time         `orm:"auto_now;type(datetime)"`
+	CourseCreatedTime time.Time `orm:"auto_now_add;type(datetime)"`
+	CourseUpdatedTime time.Time `orm:"auto_now;type(datetime)"`
 }
 
 // CourseBaseInfo 上课时间地点
@@ -167,6 +171,8 @@ func init() {
 func GetStudentColumn() string {
 	return `student_info.student_id",
 "student_info.student_name",
+"student_info.student_password",
+"student_info.student_type",
 "student_info.student_sex", 
 "student_info.student_college",
 "student_info.student_birth",
@@ -185,6 +191,8 @@ func GetClassColumn() string {
 func GetTeacherColumn() string {
 	return `teacher_info.teacher_id",
 "teacher_info.teacher_name",
+"teacher_info.teacher_password",
+"teacher_info.teacher_type",
 "teacher_info.teacher_sex", 
 "teacher_info.teacher_college",
 "teacher_info.teacher_birth",
@@ -262,6 +270,14 @@ func ParseStudentInfo(param orm.Params) *StudentInfo {
 	if studentName != nil {
 		student.StudentName = studentName.(string)
 	}
+	studentPassword := param["student_password"]
+	if studentPassword != nil {
+		student.StudentPassword = studentPassword.(string)
+	}
+	studentType := param["student_type"]
+	if studentType != nil {
+		student.StudentType, _ = strconv.Atoi(studentType.(string))
+	}
 	studentSex := param["student_sex"]
 	if studentSex != nil {
 		student.StudentSex = studentSex.(string)
@@ -327,6 +343,14 @@ func ParseTeacherInfo(param orm.Params) *TeacherInfo {
 	teacherName := param["teacher_name"]
 	if teacherName != nil {
 		teacher.TeacherName = teacherName.(string)
+	}
+	teacherPassword := param["teacher_password"]
+	if teacherPassword != nil {
+		teacher.TeacherPassword = teacherPassword.(string)
+	}
+	teacherType := param["teacher_type"]
+	if teacherType != nil {
+		teacher.TeacherType, _ = strconv.Atoi(teacherType.(string))
 	}
 	teacherSex := param["teacher_sex"]
 	if teacherSex != nil {
@@ -613,4 +637,3 @@ func ParseCourseStudent(params []orm.Params) []*StudentInfo {
 	}
 	return students
 }
-

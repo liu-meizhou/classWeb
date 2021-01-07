@@ -5,8 +5,10 @@ import (
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
 	_ "github.com/lib/pq"
+	_ "goweb/filters"
 	"goweb/models"
 	_ "goweb/routers"
+	"goweb/utils"
 	"os"
 	"time"
 )
@@ -41,6 +43,8 @@ func genDB() {
 	// 创建学生 刘佳合
 	studentInfo1 := new(models.StudentInfo)
 	studentInfo1.StudentId = "1865400006"
+	studentInfo1.StudentPassword = "123456"
+	studentInfo1.StudentType = utils.STUDENT
 	studentInfo1.StudentName = "刘佳合"
 	studentInfo1.StudentSex = "男"
 	studentInfo1.StudentCollege = "计算机学院"
@@ -52,6 +56,8 @@ func genDB() {
 	// 创建老师 李传中
 	teacherInfo1 := new(models.TeacherInfo)
 	teacherInfo1.TeacherId = "100755"
+	teacherInfo1.TeacherPassword = "123456"
+	teacherInfo1.TeacherType = utils.TEACHER_HEAD
 	teacherInfo1.TeacherName = "李传中"
 	teacherInfo1.TeacherSex = "男"
 	teacherInfo1.TeacherCollege = "计算机学院"
@@ -62,6 +68,8 @@ func genDB() {
 	// 创建老师 杨朔
 	teacherInfo2 := new(models.TeacherInfo)
 	teacherInfo2.TeacherId = "111666"
+	teacherInfo2.TeacherPassword = "123456"
+	teacherInfo2.TeacherType = utils.TEACHER
 	teacherInfo2.TeacherName = "杨朔"
 	teacherInfo2.TeacherSex = "男"
 	teacherInfo2.TeacherCollege = "计算机学院"

@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"fmt"
-	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/context"
@@ -44,61 +42,11 @@ import (
 //	}
 //	this.ServeJSON()
 
-type UserTypeInfo struct {
-	User interface{}
-	UserType int  // userType:  1.Admin, 2.学生, 3.老师, 4.系主任
-}
-
 type UserController struct {
 	web.Controller
 }
 
 var userCache sync.Map
-
-func GetUserByTokenInfo(tokenInfo *utils.TokenInfo) (*UserTypeInfo, error) {
-	userTypeInfo := &UserTypeInfo{
-		nil,
-		tokenInfo.UserType,
-	}
-	o := orm.NewOrm()
-	switch tokenInfo.UserType {
-	case 1: {
-		// admin
-		break
-	}
-	case 2: {
-		// 学生
-		user := &models.StudentInfo{StudentId: tokenInfo.Id}
-		err := o.Read(user)
-		if err == orm.ErrNoRows {
-			return nil, fmt.Errorf("查询不到")
-		} else if err == orm.ErrMissPK {
-			return nil, fmt.Errorf("找不到主键")
-		}
-		userTypeInfo.User = user
-		break
-	}
-	case 3, 4:{
-		// 老师和系主任
-		user := &models.TeacherInfo{TeacherId: tokenInfo.Id}
-		err := o.Read(user)
-		if err == orm.ErrNoRows {
-			return nil, fmt.Errorf("查询不到")
-		} else if err == orm.ErrMissPK {
-			return nil, fmt.Errorf("找不到主键")
-		} else if err != nil {
-			return nil, err
-		}
-		userTypeInfo.User = user
-		break
-	}
-	default:{
-		return nil, fmt.Errorf("未知身份")
-	}
-	}
-	return userTypeInfo, nil
-}
-
 
 //ParseForm(obj interface{}) error
 //
@@ -124,7 +72,7 @@ func Identify(ctx *context.Context) bool {
 
 	// 走后门 学生刘佳合
 	if token == "1865400006" {
-		userTypeInfo, err := GetUserByTokenInfo(utils.NewTokenInfo("1865400006", 2))
+		userTypeInfo, err := models.Login(utils.NewTokenInfo("1865400006","123456", 2))
 		if err != nil {
 			logs.Error(err)
 			ctx.Output.JSON(utils.NoIdentifyReJson(err.Error()), web.BConfig.RunMode != web.PROD, true)
@@ -135,7 +83,7 @@ func Identify(ctx *context.Context) bool {
 	}
 	// 老师 杨朔
 	if token == "111666" {
-		userTypeInfo, err := GetUserByTokenInfo(utils.NewTokenInfo("111666", 3))
+		userTypeInfo, err := models.Login(utils.NewTokenInfo("111666", "123456", 3))
 		if err != nil {
 			logs.Error(err)
 			ctx.Output.JSON(utils.NoIdentifyReJson(err.Error()), web.BConfig.RunMode != web.PROD, true)
@@ -146,7 +94,7 @@ func Identify(ctx *context.Context) bool {
 	}
 	// 系主任 李传中
 	if token == "100755" {
-		userTypeInfo, err := GetUserByTokenInfo(utils.NewTokenInfo("100755", 4))
+		userTypeInfo, err := models.Login(utils.NewTokenInfo("100755", "123456", 4))
 		if err != nil {
 			logs.Error(err)
 			ctx.Output.JSON(utils.NoIdentifyReJson(err.Error()), web.BConfig.RunMode != web.PROD, true)
@@ -167,12 +115,9 @@ func Identify(ctx *context.Context) bool {
 		ctx.Output.JSON(utils.NoIdentifyReJson(err.Error()), web.BConfig.RunMode != web.PROD, true)
 		return false
 	}
-	// 查看缓存是否有用户
-	if _ ,ok:=userCache.Load(token);ok{
-		return true
-	}
+
 	// 访问数据库
-	userTypeInfo, err := GetUserByTokenInfo(tokenInfo)
+	userTypeInfo, err := models.Login(tokenInfo)
 	if err != nil {
 		logs.Error(err)
 		ctx.Output.JSON(utils.NoIdentifyReJson(err.Error()), web.BConfig.RunMode != web.PROD, true)
@@ -202,35 +147,35 @@ func (this *UserController) GetCourse() {
 		this.ServeJSON()
 		return
 	}
-	userTypeInfo := userTypeInfoInterface.(*UserTypeInfo)
-	switch userTypeInfo.UserType {
-	case 1: {
+	user := userTypeInfoInterface.(*utils.User)
+	switch user.UserType {
+	case utils.ADMIN: {
 		// admin
 		break
 	}
-	case 2: {
+	case utils.STUDENT: {
 		// 学生
-		studentInfo := userTypeInfo.User.(*models.StudentInfo)
+		studentInfo := user.User.(*models.StudentInfo)
 		if studentInfo.Courses == nil {
 			_ = models.GetStudentCourse(studentInfo)
 		}
 		this.Data["json"] = utils.SuccessReJson(studentInfo.Courses)
 		break
 	}
-	case 3: {
+	case utils.TEACHER: {
 		// 老师
-		teacherInfo := userTypeInfo.User.(*models.TeacherInfo)
+		teacherInfo := user.User.(*models.TeacherInfo)
 		if teacherInfo.Courses == nil {
 			_ = models.GetTeacherCourse(teacherInfo)
 		}
 		this.Data["json"] = utils.SuccessReJson(teacherInfo.Courses)
 		break
 	}
-	case 4: {
+	case utils.TEACHER_HEAD: {
 		// 系主任
-		teacherInfo := userTypeInfo.User.(*models.TeacherInfo)
+		teacherInfo := user.User.(*models.TeacherInfo)
 		// 获取要看的人的类型和id，如没有就是查看自己的课表
-		userType, err := this.GetInt("userType", userTypeInfo.UserType)
+		userType, err := this.GetInt("userType", user.UserType)
 		if err != nil {
 			this.Data["json"] = utils.ErrorReJson(err)
 			break
@@ -241,7 +186,8 @@ func (this *UserController) GetCourse() {
 			student := &models.StudentInfo{StudentId: userId}
 			err = models.GetStudentCourse(student)
 			if err != nil {
-				this.Data["json"] = utils.ErrorReJson(err)
+				logs.Error(err)
+				this.Data["json"] = utils.ErrorReJson(err.Error())
 				break
 			}
 			this.Data["json"] = utils.SuccessReJson(student)
@@ -275,21 +221,21 @@ func (this *UserController) ExportCourse() {
 		this.ServeJSON()
 		return
 	}
-	userTypeInfo := userTypeInfoInterface.(*UserTypeInfo)
-	switch userTypeInfo.UserType {
-	case 1: {
+	user := userTypeInfoInterface.(*utils.User)
+	switch user.UserType {
+	case utils.ADMIN: {
 		// admin
 		break
 	}
-	case 2: {
+	case utils.STUDENT: {
 		// 学生
 		break
 	}
-	case 3: {
+	case utils.TEACHER: {
 		// 老师
 		break
 	}
-	case 4: {
+	case utils.TEACHER_HEAD: {
 		// 系主任
 		break
 	}
@@ -313,15 +259,15 @@ func (this *UserController) ChooseCourse() {
 	}
 	// 获取请求类型
 	method := this.Ctx.Request.Method
-	userTypeInfo := userTypeInfoInterface.(*UserTypeInfo)
-	switch userTypeInfo.UserType {
-	case 1: {
+	user := userTypeInfoInterface.(*utils.User)
+	switch user.UserType {
+	case utils.ADMIN: {
 		// admin
 		break
 	}
-	case 2: {
+	case utils.STUDENT: {
 		// 学生
-		studentInfo := userTypeInfo.User.(*models.StudentInfo)
+		studentInfo := user.User.(*models.StudentInfo)
 		if method == "GET" {
 			courses, err := models.GetChooseCourse(studentInfo)
 			if err != nil {
@@ -334,11 +280,11 @@ func (this *UserController) ChooseCourse() {
 		}
 		break
 	}
-	case 3: {
+	case utils.TEACHER: {
 		// 老师
 		break
 	}
-	case 4: {
+	case utils.TEACHER_HEAD: {
 		// 系主任
 		break
 	}
@@ -361,17 +307,17 @@ func (this *UserController) CourseGrade() {
 		return
 	}
 	method := this.Ctx.Request.Method
-	userTypeInfo := userTypeInfoInterface.(*UserTypeInfo)
-	switch userTypeInfo.UserType {
-	case 1: {
+	user := userTypeInfoInterface.(*utils.User)
+	switch user.UserType {
+	case utils.ADMIN: {
 		// admin
 		break
 	}
-	case 2: {
+	case utils.STUDENT: {
 		// 学生
 		break
 	}
-	case 3: {
+	case utils.TEACHER: {
 		// 老师
 		//teacherInfo := userTypeInfo.User.(*models.TeacherInfo)
 		if method == "GET" {
@@ -392,7 +338,7 @@ func (this *UserController) CourseGrade() {
 		}
 		break
 	}
-	case 4: {
+	case utils.TEACHER_HEAD: {
 		// 系主任
 		break
 	}
