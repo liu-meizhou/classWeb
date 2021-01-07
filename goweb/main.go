@@ -21,7 +21,7 @@ func init() {
 
 	// need to register default database
 	err = orm.RegisterDataBase("default", "postgres",
-		"postgresql://postgres:123456@42.193.143.9:5432/postgres?sslmode=disable")
+		"postgresql://postgres:123456@42.193.143.9:5432/postgres?sslmode=disable&&TimeZone=Asia/Shanghai")
 	if err != nil {
 		logs.Error(err)
 		os.Exit(-1)
@@ -40,18 +40,18 @@ func genDB() {
 	// 初始化数据
 	// 创建学生 刘佳合
 	studentInfo1 := new(models.StudentInfo)
-	studentInfo1.StudentId = 1865400006
+	studentInfo1.StudentId = "1865400006"
 	studentInfo1.StudentName = "刘佳合"
 	studentInfo1.StudentSex = "男"
 	studentInfo1.StudentCollege = "计算机学院"
 	studentInfo1.StudentBirth, _ = time.Parse("2006-01-02 15:04:05", "2000-01-22 12:00:00")
 	// 创建班级 计科182
 	classInfo1 := new(models.ClassInfo)
-	classInfo1.ClassId = 182
+	classInfo1.ClassId = "182"
 	classInfo1.ClassName = "计科182"
 	// 创建老师 李传中
 	teacherInfo1 := new(models.TeacherInfo)
-	teacherInfo1.TeacherId = 100755
+	teacherInfo1.TeacherId = "100755"
 	teacherInfo1.TeacherName = "李传中"
 	teacherInfo1.TeacherSex = "男"
 	teacherInfo1.TeacherCollege = "计算机学院"
@@ -61,7 +61,7 @@ func genDB() {
 	}
 	// 创建老师 杨朔
 	teacherInfo2 := new(models.TeacherInfo)
-	teacherInfo2.TeacherId = 111666
+	teacherInfo2.TeacherId = "111666"
 	teacherInfo2.TeacherName = "杨朔"
 	teacherInfo2.TeacherSex = "男"
 	teacherInfo2.TeacherCollege = "计算机学院"
@@ -71,7 +71,7 @@ func genDB() {
 	}
 	// 创建课程1 机器学习与数据挖掘
 	courseInfo1 := new(models.CourseInfo)
-	courseInfo1.CourseId = 180600080
+	courseInfo1.CourseId = "180600080"
 	courseInfo1.CourseName = "机器学习与数据挖掘"
 	courseInfo1.CourseProperties = "专业必修课程"
 	courseInfo1.CourseScores = 3.0
@@ -83,7 +83,7 @@ func genDB() {
 	}
 	// 创建课程2 软件工程导论
 	courseInfo2 := new(models.CourseInfo)
-	courseInfo2.CourseId = 180600019
+	courseInfo2.CourseId = "180600019"
 	courseInfo2.CourseName = "软件工程导论"
 	courseInfo2.CourseProperties = "专业选修课程"
 	courseInfo2.CourseScores = 2.0
@@ -162,6 +162,14 @@ func genDB() {
 	courseStudentRel1.Student = studentInfo1
 	courseStudentRel1.Course = courseInfo2
 	_, err = o.Insert(courseStudentRel1)
+	if err != nil {
+		logs.Info(err)
+	}
+	// 创建学生课程关系2 刘佳合  机器学习与数据挖掘
+	courseStudentRel2 := new(models.CourseStudentRel)
+	courseStudentRel2.Student = studentInfo1
+	courseStudentRel2.Course = courseInfo1
+	_, err = o.Insert(courseStudentRel2)
 	if err != nil {
 		logs.Info(err)
 	}

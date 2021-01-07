@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+
 type TokenConfig struct {
 	TokenSecrets []byte
 	TokenExp     int  // userType:  1.Admin, 2.学生, 3.老师, 4.系主任
@@ -17,11 +18,11 @@ type TokenConfig struct {
 var tokenConfig = &TokenConfig{}
 
 type TokenInfo struct {
-	Id       int
+	Id       string
 	UserType int
 }
 
-func NewTokenInfo(id, userType int) *TokenInfo {
+func NewTokenInfo(id string, userType int) *TokenInfo {
 	return &TokenInfo{
 		id,
 		userType,
@@ -69,7 +70,7 @@ func ParseToken(tokenString string) (*TokenInfo, error) {
 	if token != nil {
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if ok && token.Valid {
-			return NewTokenInfo(claims["id"].(int), claims["userType"].(int)), nil
+			return NewTokenInfo(claims["id"].(string), claims["userType"].(int)), nil
 		}
 	}
 	logs.Error(err)
