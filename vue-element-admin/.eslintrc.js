@@ -37,6 +37,7 @@ module.exports = {
     'camelcase': [0, {
       'properties': 'always'
     }],
+    'comma-dangle': [2, 'never'],
     'comma-spacing': [2, {
       'before': false,
       'after': true
@@ -55,6 +56,7 @@ module.exports = {
     'indent': [2, 2, {
       'SwitchCase': 1
     }],
+    'jsx-quotes': [2, 'prefer-single'],
     'key-spacing': [2, {
       'beforeColon': false,
       'afterColon': true
@@ -160,6 +162,15 @@ module.exports = {
       }
     }],
     'padded-blocks': [2, 'never'],
+    'quotes': [2, 'single', {
+      'avoidEscape': true,
+      'allowTemplateLiterals': true
+    }],
+    'semi': [2, 'never'],
+    'semi-spacing': [2, {
+      'before': false,
+      'after': true
+    }],
     'space-before-blocks': [2, 'always'],
     'space-before-function-paren': [2, 'never'],
     'space-in-parens': [2, 'never'],

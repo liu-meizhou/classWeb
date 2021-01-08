@@ -17,7 +17,7 @@ func init() {
 	//初始化 游客命名空间
 	visitor :=
 		web.NewNamespace("/visitor/v1",
-			web.NSRouter("/login", &controllers.VisitorController{}, "post:Login"),
+			web.NSRouter("/login", &controllers.VisitorController{}, "options,post:Login"),
 			web.NSRouter("/register", &controllers.VisitorController{}, "post:Register"),
 		)
 	web.AddNamespace(visitor)

@@ -39,13 +39,12 @@ module.exports = {
     proxy: {
       [process.env.VUE_APP_GO_API]: {
         target: 'http://localhost:8080',
-        changeOrigin: true,
         pathRewrite: {
           ['^' + process.env.VUE_APP_GO_API]: ''
         }
       }
-    },
-    before: require('./mock/mock-server.js')
+    }
+    // before: require('./mock/mock-server.js')
   },
   configureWebpack: {
     // provide the app's title in webpack's name field, so that

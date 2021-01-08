@@ -52,9 +52,9 @@ import { get, version, show } from '@/api/visitor/index'
 export default {
   data() {
     return {
-      name: "测试访问后端按钮",
-      result: "",
-    };
+      name: '测试访问后端按钮',
+      result: ''
+    }
   },
   methods: {
     get() {
@@ -74,9 +74,9 @@ export default {
       show().then(res => {
         that.result = res.data
       })
-    },
-  },
-};
+    }
+  }
+}
 </script>
 
 <style scoped>

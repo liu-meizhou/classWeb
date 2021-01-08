@@ -66,13 +66,13 @@ func Identify(ctx *context.Context) bool {
 	token := ctx.Input.Header("token")
 
 	// 查看缓存是否有用户
-	if _ ,ok:=userCache.Load(token);ok{
+	if _, ok := userCache.Load(token); ok {
 		return true
 	}
 
 	// 走后门 学生刘佳合
 	if token == "1865400006" {
-		userTypeInfo, err := models.Login(utils.NewTokenInfo("1865400006","123456", 2))
+		userTypeInfo, err := models.Login(utils.NewTokenInfo("1865400006", "123456", 2))
 		if err != nil {
 			logs.Error(err)
 			ctx.Output.JSON(utils.NoIdentifyReJson(err.Error()), web.BConfig.RunMode != web.PROD, true)
@@ -143,69 +143,74 @@ func (this *UserController) GetCourse() {
 	// 从缓存获取当前登录用户
 	userTypeInfoInterface, ok := userCache.Load(token)
 	if !ok {
-		this.Data["json"] = utils.NoIdentifyReJson( "请登录...")
+		this.Data["json"] = utils.NoIdentifyReJson("请登录...")
 		this.ServeJSON()
 		return
 	}
 	user := userTypeInfoInterface.(*utils.User)
 	switch user.UserType {
-	case utils.ADMIN: {
-		// admin
-		break
-	}
-	case utils.STUDENT: {
-		// 学生
-		studentInfo := user.User.(*models.StudentInfo)
-		if studentInfo.Courses == nil {
-			_ = models.GetStudentCourse(studentInfo)
-		}
-		this.Data["json"] = utils.SuccessReJson(studentInfo.Courses)
-		break
-	}
-	case utils.TEACHER: {
-		// 老师
-		teacherInfo := user.User.(*models.TeacherInfo)
-		if teacherInfo.Courses == nil {
-			_ = models.GetTeacherCourse(teacherInfo)
-		}
-		this.Data["json"] = utils.SuccessReJson(teacherInfo.Courses)
-		break
-	}
-	case utils.TEACHER_HEAD: {
-		// 系主任
-		teacherInfo := user.User.(*models.TeacherInfo)
-		// 获取要看的人的类型和id，如没有就是查看自己的课表
-		userType, err := this.GetInt("userType", user.UserType)
-		if err != nil {
-			this.Data["json"] = utils.ErrorReJson(err)
+	case utils.ADMIN:
+		{
+			// admin
 			break
 		}
-		userId := this.GetString("userId", teacherInfo.TeacherId)
-		if userType == 2 {
-			// 获取学生课表
-			student := &models.StudentInfo{StudentId: userId}
-			err = models.GetStudentCourse(student)
+	case utils.STUDENT:
+		{
+			// 学生
+			studentInfo := user.User.(*models.StudentInfo)
+			if studentInfo.Courses == nil {
+				_ = models.GetStudentCourse(studentInfo)
+			}
+			this.Data["json"] = utils.SuccessReJson(studentInfo.Courses)
+			break
+		}
+	case utils.TEACHER:
+		{
+			// 老师
+			teacherInfo := user.User.(*models.TeacherInfo)
+			if teacherInfo.Courses == nil {
+				_ = models.GetTeacherCourse(teacherInfo)
+			}
+			this.Data["json"] = utils.SuccessReJson(teacherInfo.Courses)
+			break
+		}
+	case utils.TEACHER_HEAD:
+		{
+			// 系主任
+			teacherInfo := user.User.(*models.TeacherInfo)
+			// 获取要看的人的类型和id，如没有就是查看自己的课表
+			userType, err := this.GetInt("userType", user.UserType)
 			if err != nil {
-				logs.Error(err)
-				this.Data["json"] = utils.ErrorReJson(err.Error())
+				this.Data["json"] = utils.ErrorReJson(err)
 				break
 			}
-			this.Data["json"] = utils.SuccessReJson(student)
+			userId := this.GetString("userId", teacherInfo.TeacherId)
+			if userType == 2 {
+				// 获取学生课表
+				student := &models.StudentInfo{StudentId: userId}
+				err = models.GetStudentCourse(student)
+				if err != nil {
+					logs.Error(err)
+					this.Data["json"] = utils.ErrorReJson(err.Error())
+					break
+				}
+				this.Data["json"] = utils.SuccessReJson(student)
+				break
+			}
+			// 获取老师课表
+			teacher := &models.TeacherInfo{TeacherId: userId}
+			err = models.GetTeacherCourse(teacher)
+			if err != nil {
+				this.Data["json"] = utils.ErrorReJson(err)
+				break
+			}
+			this.Data["json"] = utils.SuccessReJson(teacher)
 			break
 		}
-		// 获取老师课表
-		teacher := &models.TeacherInfo{TeacherId: userId}
-		err = models.GetTeacherCourse(teacher)
-		if err != nil {
-			this.Data["json"] = utils.ErrorReJson(err)
-			break
+	default:
+		{
+			this.Data["json"] = utils.NoFoundReJson("未知用户...")
 		}
-		this.Data["json"] = utils.SuccessReJson(teacher)
-		break
-	}
-	default: {
-		this.Data["json"] = utils.NoFoundReJson( "未知用户...")
-	}
 	}
 	this.ServeJSON()
 }
@@ -217,31 +222,36 @@ func (this *UserController) ExportCourse() {
 	// 从缓存获取当前登录用户
 	userTypeInfoInterface, ok := userCache.Load(token)
 	if !ok {
-		this.Data["json"] = utils.NoIdentifyReJson( "请登录...")
+		this.Data["json"] = utils.NoIdentifyReJson("请登录...")
 		this.ServeJSON()
 		return
 	}
 	user := userTypeInfoInterface.(*utils.User)
 	switch user.UserType {
-	case utils.ADMIN: {
-		// admin
-		break
-	}
-	case utils.STUDENT: {
-		// 学生
-		break
-	}
-	case utils.TEACHER: {
-		// 老师
-		break
-	}
-	case utils.TEACHER_HEAD: {
-		// 系主任
-		break
-	}
-	default: {
-		this.Data["json"] = utils.NoFoundReJson( "未知用户...")
-	}
+	case utils.ADMIN:
+		{
+			// admin
+			break
+		}
+	case utils.STUDENT:
+		{
+			// 学生
+			break
+		}
+	case utils.TEACHER:
+		{
+			// 老师
+			break
+		}
+	case utils.TEACHER_HEAD:
+		{
+			// 系主任
+			break
+		}
+	default:
+		{
+			this.Data["json"] = utils.NoFoundReJson("未知用户...")
+		}
 	}
 	this.ServeJSON()
 }
@@ -253,7 +263,7 @@ func (this *UserController) ChooseCourse() {
 	// 从缓存获取当前登录用户
 	userTypeInfoInterface, ok := userCache.Load(token)
 	if !ok {
-		this.Data["json"] = utils.NoIdentifyReJson( "请登录...")
+		this.Data["json"] = utils.NoIdentifyReJson("请登录...")
 		this.ServeJSON()
 		return
 	}
@@ -261,36 +271,41 @@ func (this *UserController) ChooseCourse() {
 	method := this.Ctx.Request.Method
 	user := userTypeInfoInterface.(*utils.User)
 	switch user.UserType {
-	case utils.ADMIN: {
-		// admin
-		break
-	}
-	case utils.STUDENT: {
-		// 学生
-		studentInfo := user.User.(*models.StudentInfo)
-		if method == "GET" {
-			courses, err := models.GetChooseCourse(studentInfo)
-			if err != nil {
-				this.Data["json"] = utils.ErrorReJson(err)
-				break
-			}
-			this.Data["json"] = utils.SuccessReJson(courses)
-		} else if method == "POST" {
-
+	case utils.ADMIN:
+		{
+			// admin
+			this.Data["json"] = utils.NoFoundReJson("你不是管理员...")
 		}
-		break
-	}
-	case utils.TEACHER: {
-		// 老师
-		break
-	}
-	case utils.TEACHER_HEAD: {
-		// 系主任
-		break
-	}
-	default: {
-		this.Data["json"] = utils.NoFoundReJson( "未知用户...")
-	}
+	case utils.STUDENT:
+		{
+			// 学生
+			studentInfo := user.User.(*models.StudentInfo)
+			if method == "GET" {
+				courses, err := models.GetChooseCourse(studentInfo)
+				if err != nil {
+					this.Data["json"] = utils.ErrorReJson(err)
+					break
+				}
+				this.Data["json"] = utils.SuccessReJson(courses)
+			} else if method == "POST" {
+
+			}
+			break
+		}
+	case utils.TEACHER:
+		{
+			// 老师
+			break
+		}
+	case utils.TEACHER_HEAD:
+		{
+			// 系主任
+			break
+		}
+	default:
+		{
+			this.Data["json"] = utils.NoFoundReJson("未知用户...")
+		}
 	}
 	this.ServeJSON()
 }
@@ -302,49 +317,54 @@ func (this *UserController) CourseGrade() {
 	// 从缓存获取当前登录用户
 	userTypeInfoInterface, ok := userCache.Load(token)
 	if !ok {
-		this.Data["json"] = utils.NoIdentifyReJson( "请登录...")
+		this.Data["json"] = utils.NoIdentifyReJson("请登录...")
 		this.ServeJSON()
 		return
 	}
 	method := this.Ctx.Request.Method
 	user := userTypeInfoInterface.(*utils.User)
 	switch user.UserType {
-	case utils.ADMIN: {
-		// admin
-		break
-	}
-	case utils.STUDENT: {
-		// 学生
-		break
-	}
-	case utils.TEACHER: {
-		// 老师
-		//teacherInfo := userTypeInfo.User.(*models.TeacherInfo)
-		if method == "GET" {
-			// 获取要查询的课程号
-			courseId := this.GetString("courseId")
-			if courseId == "" {
-				this.Data["json"] = utils.ErrorReJson("输入课程号")
-				break
-			}
-			students, err := models.GetGradeCourse(&models.CourseInfo{CourseId: courseId})
-			if err != nil {
-				this.Data["json"] = utils.ErrorReJson(err)
-				break
-			}
-			this.Data["json"] = utils.SuccessReJson(students)
-		} else if method == "POST" {
-
+	case utils.ADMIN:
+		{
+			// admin
+			break
 		}
-		break
-	}
-	case utils.TEACHER_HEAD: {
-		// 系主任
-		break
-	}
-	default: {
-		this.Data["json"] = utils.NoFoundReJson( "未知用户...")
-	}
+	case utils.STUDENT:
+		{
+			// 学生
+			break
+		}
+	case utils.TEACHER:
+		{
+			// 老师
+			//teacherInfo := userTypeInfo.User.(*models.TeacherInfo)
+			if method == "GET" {
+				// 获取要查询的课程号
+				courseId := this.GetString("courseId")
+				if courseId == "" {
+					this.Data["json"] = utils.ErrorReJson("输入课程号")
+					break
+				}
+				students, err := models.GetGradeCourse(&models.CourseInfo{CourseId: courseId})
+				if err != nil {
+					this.Data["json"] = utils.ErrorReJson(err)
+					break
+				}
+				this.Data["json"] = utils.SuccessReJson(students)
+			} else if method == "POST" {
+
+			}
+			break
+		}
+	case utils.TEACHER_HEAD:
+		{
+			// 系主任
+			break
+		}
+	default:
+		{
+			this.Data["json"] = utils.NoFoundReJson("未知用户...")
+		}
 	}
 	this.ServeJSON()
 }

@@ -84,7 +84,6 @@ func GetStudentCourse(student *StudentInfo) error {
 	return nil
 }
 
-
 func GetChooseCourse(student *StudentInfo) ([]*CourseInfo, error) {
 	qb, err := orm.NewQueryBuilder("postgres")
 	if err != nil {
@@ -124,4 +123,3 @@ func GetChooseCourse(student *StudentInfo) ([]*CourseInfo, error) {
 
 	return courses, nil
 }
-

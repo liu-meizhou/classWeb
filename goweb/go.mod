@@ -12,8 +12,6 @@ require (
 	golang.org/x/crypto v0.0.0-20201012173705-84dcc777aaee // indirect
 )
 
-// go get -insecure github.com/beego/beego/v2@v2.0.0
-
 //go mod init  # 初始化go.mod
 //go mod tidy  # 更新依赖文件
 //go mod download  # 下载依赖文件

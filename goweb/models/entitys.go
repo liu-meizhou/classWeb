@@ -20,7 +20,7 @@ import (
 type StudentInfo struct {
 	StudentId          string        `orm:"pk"` // 学生学号,id,主键
 	StudentPassword    string        // 登录密码
-	StudentType    		int        // 学生用户类型
+	StudentType        int           // 学生用户类型
 	Class              *ClassInfo    `orm:"null;rel(fk);on_delete(set_null)"`                    // 所在班级
 	Courses            []*CourseInfo `orm:"rel(m2m);rel_through(goweb/models.CourseStudentRel)"` // 学生拥有的课程
 	StudentName        string        `orm:"size(50)"`                                            // 学生名字
@@ -49,7 +49,7 @@ type ClassInfo struct {
 type TeacherInfo struct {
 	TeacherId          string            `orm:"pk"` // 教工号,id,主键
 	TeacherPassword    string            // 登录密码
-	TeacherType    		int        		// 老师用户类型
+	TeacherType        int               // 老师用户类型
 	TeacherName        string            `orm:"size(50)"`                                                // 老师名字
 	Classes            []*ClassInfo      `orm:"reverse(many)"`                                           // 教学班主
 	Courses            []*CourseInfo     `orm:"rel(m2m);rel_through(goweb/models.CourseTeacherRel)"`     // 该老师教的课程

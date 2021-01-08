@@ -20,3 +20,11 @@ export function show() {
     method: 'get'
   })
 }
+
+export function login(data) {
+  return request({
+    url: '/visitor/v1/login',
+    method: 'post',
+    data
+  })
+}
