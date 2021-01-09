@@ -56,7 +56,7 @@ func (this *VisitorController) Login() {
 	}
 	// 登录成功 创建token并且加入缓存
 	token := utils.CreateToken(loginInfo)
-	userCache.Store(token, user)
+	SetUser(token, user)
 
 	this.Data["json"] = utils.SuccessReJson(&ReturnMessage{User: user.User, Token: token})
 	this.ServeJSON()
