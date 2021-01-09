@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 )
@@ -84,6 +85,8 @@ func GetStudentCourse(student *StudentInfo) error {
 	return nil
 }
 
+const canChooseCourse = "专业选修课程"
+
 func GetChooseCourse(student *StudentInfo) ([]*CourseInfo, error) {
 	qb, err := orm.NewQueryBuilder("postgres")
 	if err != nil {
@@ -112,7 +115,7 @@ func GetChooseCourse(student *StudentInfo) ([]*CourseInfo, error) {
 
 	o := orm.NewOrm()
 	var maps []orm.Params
-	num, err := o.Raw(sql, "专业选修课程").Values(&maps)
+	num, err := o.Raw(sql, canChooseCourse).Values(&maps)
 	if err != nil {
 		logs.Error(err)
 		return nil, err
@@ -122,4 +125,64 @@ func GetChooseCourse(student *StudentInfo) ([]*CourseInfo, error) {
 	courses := ParseCourses(maps)
 
 	return courses, nil
+}
+
+func ChooseCourse(rel *CourseStudentRel) error {
+	qb, err := orm.NewQueryBuilder("postgres")
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	// 构建查询对象
+	qb.Select(GetCourseColumn(), GetCourseBaseColumn(), GetCourseStudentRelColumn()).
+		From("course_info").
+		LeftJoin("course_base_info").On("course_base_info.course_id=course_info.course_id").
+		LeftJoin("course_student_rel").On("course_info.course_id = course_student_rel.course_id").
+		//LeftJoin("student_info").On("course_student_rel.student_id = student_info.student_id").
+		Where("course_info.course_id = ?")
+
+	// 导出 SQL 语句
+	sql := qb.String()
+	//logs.Debug(sql)
+
+	o := orm.NewOrm()
+	var maps []orm.Params
+	num, err := o.Raw(sql, rel.Course.CourseId).Values(&maps)
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	// 课程是否存在
+	if num == 0 {
+		return fmt.Errorf("你选择的课程不存在")
+	}
+	course := ParseCourse(maps)
+	if course == nil {
+		return fmt.Errorf("你选择的课程不存在")
+	}
+	// 判断课程是否可选
+	if course.CourseProperties != canChooseCourse {
+		return fmt.Errorf("你选择的课程不可选择, 不是%v", canChooseCourse)
+	}
+	// 判断选课人数是否超过最大限制
+
+	// 判断课程是否已经选
+	if course.Students != nil {
+		for _, student := range course.Students {
+			if student.StudentId == rel.Student.StudentId {
+				//if num > 1 {
+				//	logs.Warning("一个学生出现多条相同的课程了, 学生号: %v, 课程号: %v", rel.Student.StudentId, rel.Course.CourseId)
+				//}
+				return fmt.Errorf("你已经选上了,不可重复选择")
+			}
+		}
+	}
+	id, err := o.Insert(rel)
+	if err!=nil {
+		logs.Error(err)
+		return err
+	}
+	rel.CourseStudentRelId = int(id)
+	rel.Course = course
+	return nil
 }

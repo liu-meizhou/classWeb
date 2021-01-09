@@ -1,9 +1,9 @@
 package models
 
 func GetStudentColumn() string {
+	// "student_info.student_password",
 	return `student_info.student_id",
 "student_info.student_name",
-"student_info.student_password",
 "student_info.student_type",
 "student_info.student_sex", 
 "student_info.student_college",
@@ -21,9 +21,9 @@ func GetClassColumn() string {
 }
 
 func GetTeacherColumn() string {
+	// "teacher_info.teacher_password",
 	return `teacher_info.teacher_id",
 "teacher_info.teacher_name",
-"teacher_info.teacher_password",
 "teacher_info.teacher_type",
 "teacher_info.teacher_sex", 
 "teacher_info.teacher_college",
@@ -34,12 +34,13 @@ func GetTeacherColumn() string {
 }
 
 func GetCourseColumn() string {
+	// "course_info.course_max_number",
 	return `course_info.course_id",
 "course_info.course_name",
 "course_info.course_properties",
 "course_info.course_scores",
 "course_info.course_way",
-"course_info.course_count", 
+"course_info.course_count",
 "course_info.course_created_time",
 "course_info.course_updated_time`
 }

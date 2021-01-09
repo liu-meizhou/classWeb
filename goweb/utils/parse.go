@@ -12,3 +12,4 @@ type CourseStudentRel struct {
 	CourseStudentRelCreatedTime time.Time `json:"createdTime"`
 	CourseStudentRelUpdatedTime time.Time `json:"updatedTime"`
 }
+

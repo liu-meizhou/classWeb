@@ -31,7 +31,7 @@ func init() {
 			web.NSNamespace("/course",
 				web.NSRouter("/show", &controllers.UserController{}, "get:GetCourse"),
 				web.NSRouter("/export", &controllers.UserController{}, "get:ExportCourse"),
-				web.NSRouter("/choose", &controllers.UserController{}, "get,post:ChooseCourse"),
+				web.NSRouter("/choose", &controllers.UserController{}, "get:ChooseCourse"),
 				web.NSRouter("/grade", &controllers.UserController{}, "get,post:CourseGrade"),
 			),
 		)

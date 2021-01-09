@@ -16,10 +16,10 @@ func ParseStudentInfo(param orm.Params) *StudentInfo {
 	if studentName != nil {
 		student.StudentName = studentName.(string)
 	}
-	studentPassword := param["student_password"]
-	if studentPassword != nil {
-		student.StudentPassword = studentPassword.(string)
-	}
+	//studentPassword := param["student_password"]
+	//if studentPassword != nil {
+	//	student.StudentPassword = studentPassword.(string)
+	//}
 	studentType := param["student_type"]
 	if studentType != nil {
 		student.StudentType = studentType.(string)
@@ -90,10 +90,10 @@ func ParseTeacherInfo(param orm.Params) *TeacherInfo {
 	if teacherName != nil {
 		teacher.TeacherName = teacherName.(string)
 	}
-	teacherPassword := param["teacher_password"]
-	if teacherPassword != nil {
-		teacher.TeacherPassword = teacherPassword.(string)
-	}
+	//teacherPassword := param["teacher_password"]
+	//if teacherPassword != nil {
+	//	teacher.TeacherPassword = teacherPassword.(string)
+	//}
 	teacherType := param["teacher_type"]
 	if teacherType != nil {
 		teacher.TeacherType = teacherType.(string)
@@ -163,6 +163,10 @@ func ParseCourseInfo(param orm.Params) *CourseInfo {
 	if studentPoint != nil {
 		course.StudentPoint, _ = strconv.ParseFloat(studentPoint.(string), 64)
 	}
+	//courseMaxNumber := param["course_max_number"]
+	//if courseMaxNumber != nil {
+	//	course.CourseMaxNumber, _ = strconv.Atoi(courseMaxNumber.(string))
+	//}
 	courseCreatedTime := param["course_created_time"]
 	if courseCreatedTime != nil {
 		course.CourseCreatedTime, _ = time.Parse(time.RFC3339Nano, courseCreatedTime.(string))
@@ -286,6 +290,82 @@ func ParseCourseGroupRel(param orm.Params) *CourseGroupRel {
 	return nil
 }
 
+func ParseCourse(params []orm.Params) *CourseInfo {
+	var course *CourseInfo
+	studentMap := make(map[string]*StudentInfo)
+	classMap := make(map[string]*ClassInfo)
+	teacherMap := make(map[string]*TeacherInfo)
+	classGroupMap := make(map[int]*ClassGroupInfo)
+	for _, param := range params {
+		newCourse := ParseCourseInfo(param)
+		if newCourse == nil{
+			continue
+		}
+		student := ParseStudentInfo(param)
+		class := ParseClassInfo(param)
+		teacher := ParseTeacherInfo(param)
+		classGroup := ParseClassGroupInfo(param)
+		courseBase := ParseCourseBaseInfo(param)
+
+		if course == nil {
+			course = newCourse
+			if student != nil {
+				studentMap[student.StudentId] = student
+				course.Students = append(course.Students, student)
+			}
+			if class != nil {
+				classMap[class.ClassId] = class
+				course.Classes = append(course.Classes, class)
+			}
+			if teacher != nil {
+				teacherMap[teacher.TeacherId] = teacher
+				course.Teachers = append(course.Teachers, teacher)
+			}
+			if classGroup != nil {
+				classGroupMap[classGroup.ClassGroupId] = classGroup
+				course.ClassGroups = append(course.ClassGroups, classGroup)
+			}
+			if courseBase != nil {
+				course.CourseBases = append(course.CourseBases, courseBase)
+			}
+		} else if newCourse.CourseId != course.CourseId {
+			continue
+		}
+
+		if student != nil {
+			if _, ok := studentMap[student.StudentId]; !ok {
+				studentMap[student.StudentId] = student
+				course.Students = append(course.Students, student)
+				continue
+			}
+		}
+		if class != nil {
+			if _, ok := classMap[class.ClassId]; !ok {
+				classMap[class.ClassId] = class
+				course.Classes = append(course.Classes, class)
+				continue
+			}
+		}
+		if teacher != nil {
+			if _, ok := teacherMap[teacher.TeacherId]; !ok {
+				teacherMap[teacher.TeacherId] = teacher
+				course.Teachers = append(course.Teachers, teacher)
+				continue
+			}
+		}
+		if classGroup != nil {
+			if _, ok := classGroupMap[classGroup.ClassGroupId]; !ok {
+				classGroupMap[classGroup.ClassGroupId] = classGroup
+				course.ClassGroups = append(course.ClassGroups, classGroup)
+				continue
+			}
+		}
+		course.CourseBases = append(course.CourseBases, courseBase)
+
+	}
+	return course
+}
+
 func ParseCourses(params []orm.Params) []*CourseInfo {
 	var courses []*CourseInfo
 	courseMap := make(map[string]*CourseInfo)
@@ -306,24 +386,28 @@ func ParseCourses(params []orm.Params) []*CourseInfo {
 		if oldCourse, ok := courseMap[course.CourseId]; ok {
 			if student != nil {
 				if _, ok := studentMap[course.CourseId][student.StudentId]; !ok {
+					studentMap[course.CourseId][student.StudentId] = student
 					oldCourse.Students = append(oldCourse.Students, student)
 					continue
 				}
 			}
 			if class != nil {
 				if _, ok := classMap[course.CourseId][class.ClassId]; !ok {
+					classMap[course.CourseId][class.ClassId] = class
 					oldCourse.Classes = append(oldCourse.Classes, class)
 					continue
 				}
 			}
 			if teacher != nil {
 				if _, ok := teacherMap[course.CourseId][teacher.TeacherId]; !ok {
+					teacherMap[course.CourseId][teacher.TeacherId] = teacher
 					oldCourse.Teachers = append(oldCourse.Teachers, teacher)
 					continue
 				}
 			}
 			if classGroup != nil {
 				if _, ok := classGroupMap[course.CourseId][classGroup.ClassGroupId]; !ok {
+					classGroupMap[course.CourseId][classGroup.ClassGroupId] = classGroup
 					oldCourse.ClassGroups = append(oldCourse.ClassGroups, classGroup)
 					continue
 				}

@@ -254,7 +254,7 @@ func (this *UserController) ExportCourse() {
 	this.ServeJSON()
 }
 
-// ChooseCourse 选课  Get请求获取选课列表 Post请求进行选课
+// ChooseCourse 选课  学生: Get请求无参数获取选课列表 带courseId参数请求进行选课
 func (this *UserController) ChooseCourse() {
 	// 获取token
 	token := this.Ctx.Input.Header("token")
@@ -265,39 +265,49 @@ func (this *UserController) ChooseCourse() {
 		this.ServeJSON()
 		return
 	}
-	// 获取请求类型
-	method := this.Ctx.Request.Method
 	user := userTypeInfoInterface.(*utils.User)
 	switch user.UserType {
 	case utils.ADMIN:
 		{
 			// admin
 			this.Data["json"] = utils.NoFoundReJson("你不是管理员...")
+			break
 		}
 	case utils.STUDENT:
 		{
 			// 学生
 			studentInfo := user.User.(*models.StudentInfo)
-			if method == "GET" {
+			// 获取请求参数
+			courseId := this.GetString("courseId")
+			if courseId == "" {
 				courses, err := models.GetChooseCourse(studentInfo)
 				if err != nil {
 					this.Data["json"] = utils.ErrorReJson(err)
 					break
 				}
 				this.Data["json"] = utils.SuccessReJson(courses)
-			} else if method == "POST" {
-
+			} else {
+				rel := &models.CourseStudentRel{Student: studentInfo, Course: &models.CourseInfo{CourseId: courseId}}
+				err := models.ChooseCourse(rel)
+				if err != nil {
+					logs.Error(err)
+					this.Data["json"] = utils.ErrorReJson(err.Error())
+					break
+				}
+				this.Data["json"] = utils.SuccessReJson(rel)
 			}
 			break
 		}
 	case utils.TEACHER:
 		{
 			// 老师
+			this.Data["json"] = utils.NoFoundReJson("此功能老师暂无...")
 			break
 		}
 	case utils.TEACHER_HEAD:
 		{
 			// 系主任
+			this.Data["json"] = utils.NoFoundReJson("此功能系主任暂无...")
 			break
 		}
 	default:

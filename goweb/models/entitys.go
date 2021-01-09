@@ -77,7 +77,7 @@ type CourseInfo struct {
 	CourseCount      float64           `json:"courseHour" orm:"digits(5);decimals(2)"` // 学时, 单位小时
 	StudentResults   float64           `json:"grade" orm:"-"`                          // 课程成绩
 	StudentPoint     float64           `json:"point" orm:"-"`                          // 课程绩点
-	//StudentNumber      int           	`orm:"-"`                     // 选该课程的人数
+	//CourseMaxNumber      int           	`json:"courseMaxNumber" orm:"max_number"`                     // 课程的上线人数 -1为无上限
 	CourseCreatedTime time.Time `json:"createdTime" orm:"auto_now_add;type(datetime)"`
 	CourseUpdatedTime time.Time `json:"updatedTime" orm:"auto_now;type(datetime)"`
 }
