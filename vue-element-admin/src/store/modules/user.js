@@ -1,5 +1,5 @@
-import { logout } from '@/api/user'
 import { login } from '@/api/visitor/index'
+import { logout } from '@/api/user/index'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
@@ -43,6 +43,7 @@ const actions = {
           commit('SET_TOKEN', data.token)
           commit('SET_USER', data.user)
           setToken(data.token)
+
           resolve()
         })
         .catch(error => {
@@ -88,7 +89,7 @@ const actions = {
   // user logout
   logout({ commit, state, dispatch }) {
     return new Promise((resolve, reject) => {
-      logout(state.token)
+      logout()
         .then(() => {
           commit('SET_TOKEN', '')
           commit('SET_ROLES', [])

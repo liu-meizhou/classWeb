@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/context"
@@ -72,7 +74,7 @@ func Identify(ctx *context.Context) bool {
 
 	// 走后门 学生刘佳合
 	if token == "1865400006" {
-		userTypeInfo, err := models.Login(utils.NewTokenInfo("1865400006", "123456", 2))
+		userTypeInfo, err := models.Login(utils.NewTokenInfo("1865400006", "123456", utils.STUDENT))
 		if err != nil {
 			logs.Error(err)
 			ctx.Output.JSON(utils.NoIdentifyReJson(err.Error()), web.BConfig.RunMode != web.PROD, true)
@@ -83,7 +85,7 @@ func Identify(ctx *context.Context) bool {
 	}
 	// 老师 杨朔
 	if token == "111666" {
-		userTypeInfo, err := models.Login(utils.NewTokenInfo("111666", "123456", 3))
+		userTypeInfo, err := models.Login(utils.NewTokenInfo("111666", "123456", utils.TEACHER))
 		if err != nil {
 			logs.Error(err)
 			ctx.Output.JSON(utils.NoIdentifyReJson(err.Error()), web.BConfig.RunMode != web.PROD, true)
@@ -94,7 +96,7 @@ func Identify(ctx *context.Context) bool {
 	}
 	// 系主任 李传中
 	if token == "100755" {
-		userTypeInfo, err := models.Login(utils.NewTokenInfo("100755", "123456", 4))
+		userTypeInfo, err := models.Login(utils.NewTokenInfo("100755", "123456", utils.TEACHER_HEAD))
 		if err != nil {
 			logs.Error(err)
 			ctx.Output.JSON(utils.NoIdentifyReJson(err.Error()), web.BConfig.RunMode != web.PROD, true)
@@ -179,16 +181,12 @@ func (this *UserController) GetCourse() {
 			// 系主任
 			teacherInfo := user.User.(*models.TeacherInfo)
 			// 获取要看的人的类型和id，如没有就是查看自己的课表
-			userType, err := this.GetInt("userType", user.UserType)
-			if err != nil {
-				this.Data["json"] = utils.ErrorReJson(err)
-				break
-			}
+			userType := this.GetString("userType", user.UserType)
 			userId := this.GetString("userId", teacherInfo.TeacherId)
-			if userType == 2 {
+			if userType == utils.STUDENT {
 				// 获取学生课表
 				student := &models.StudentInfo{StudentId: userId}
-				err = models.GetStudentCourse(student)
+				err := models.GetStudentCourse(student)
 				if err != nil {
 					logs.Error(err)
 					this.Data["json"] = utils.ErrorReJson(err.Error())
@@ -199,7 +197,7 @@ func (this *UserController) GetCourse() {
 			}
 			// 获取老师课表
 			teacher := &models.TeacherInfo{TeacherId: userId}
-			err = models.GetTeacherCourse(teacher)
+			err := models.GetTeacherCourse(teacher)
 			if err != nil {
 				this.Data["json"] = utils.ErrorReJson(err)
 				break
@@ -334,10 +332,10 @@ func (this *UserController) CourseGrade() {
 			// 学生
 			break
 		}
-	case utils.TEACHER:
+	case utils.TEACHER, utils.TEACHER_HEAD:
 		{
-			// 老师
-			//teacherInfo := userTypeInfo.User.(*models.TeacherInfo)
+			// 老师,系主任
+			teacherInfo := user.User.(*models.TeacherInfo)
 			if method == "GET" {
 				// 获取要查询的课程号
 				courseId := this.GetString("courseId")
@@ -345,20 +343,59 @@ func (this *UserController) CourseGrade() {
 					this.Data["json"] = utils.ErrorReJson("输入课程号")
 					break
 				}
-				students, err := models.GetGradeCourse(&models.CourseInfo{CourseId: courseId})
+				course := &models.CourseInfo{CourseId: courseId}
+				if teacherInfo.TeacherType == utils.TEACHER {
+					err := models.IsTeacherCourse(&models.CourseTeacherRel{Course: course, Teacher: teacherInfo})
+					if err != nil {
+						logs.Error(err)
+						this.Data["json"] = utils.ErrorReJson("你无权限查询")
+						break
+					}
+				}
+				students, err := models.GetGradeCourse(course)
 				if err != nil {
 					this.Data["json"] = utils.ErrorReJson(err)
 					break
 				}
 				this.Data["json"] = utils.SuccessReJson(students)
 			} else if method == "POST" {
-
+				body := this.Ctx.Input.RequestBody
+				if len(body)==0 {
+					this.Data["json"] = utils.ErrorReJson("传入不可为空")
+					break
+				}
+				courseStudentRel := new(utils.CourseStudentRel)
+				err := json.Unmarshal(body, courseStudentRel)
+				if err!=nil {
+					err2 := this.ParseForm(courseStudentRel)
+					if err2!=nil {
+						err2 = fmt.Errorf(err.Error() + "   " + err2.Error())
+						logs.Error(err2)
+						this.Data["json"] = utils.ErrorReJson(err2.Error())
+						break
+					}
+				}
+				if courseStudentRel.StudentResults == 0 || courseStudentRel.CourseId == "" || courseStudentRel.StudentId == ""{
+					logs.Debug(courseStudentRel)
+					this.Data["json"] = utils.ErrorReJson("输入数据必须有课程id,学号和新成绩")
+					break
+				}
+				err = models.IsTeacherCourse(&models.CourseTeacherRel{Course: &models.CourseInfo{CourseId: courseStudentRel.CourseId}, Teacher: teacherInfo})
+				if err != nil {
+					logs.Error(err)
+					this.Data["json"] = utils.ErrorReJson("你无权限查询")
+					break
+				}
+				// 设置成绩
+				err = models.SetStudentGradeRel(courseStudentRel)
+				if err != nil {
+					logs.Error(err)
+					this.Data["json"] = utils.ErrorReJson(err.Error())
+					break
+				}
+				// 更新缓存中的学生成绩  待做
+				this.Data["json"] = utils.SuccessReJson(courseStudentRel)
 			}
-			break
-		}
-	case utils.TEACHER_HEAD:
-		{
-			// 系主任
 			break
 		}
 	default:
@@ -368,3 +405,14 @@ func (this *UserController) CourseGrade() {
 	}
 	this.ServeJSON()
 }
+
+// Logout 下线
+func (this *UserController) Logout() {
+	// 获取token
+	token := this.Ctx.Input.Header("token")
+	// 从缓存删除当前登录用户
+	userCache.Delete(token)
+	this.Data["json"] = utils.SuccessReJson("成功注销...")
+	this.ServeJSON()
+}
+

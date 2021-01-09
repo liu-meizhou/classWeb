@@ -118,10 +118,10 @@ export default {
   components: { SocialSign },
   data() {
     const userTypes = {
-      ADMIN: 1,
-      STUDENT: 2,
-      TEACHER: 3,
-      TEACHER_HEAD: 4
+      ADMIN: '1',
+      STUDENT: '2',
+      TEACHER: '3',
+      TEACHER_HEAD: '4'
     }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {

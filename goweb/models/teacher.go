@@ -3,6 +3,7 @@ package models
 import (
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
+	"goweb/utils"
 )
 
 // GetTeacherCourse
@@ -74,3 +75,38 @@ func GetGradeCourse(course *CourseInfo) ([]*StudentInfo, error) {
 	students := ParseCourseStudent(maps)
 	return students, nil
 }
+
+// IsTeacherCourse 判断输入是否在库
+func IsTeacherCourse(rel *CourseTeacherRel) error {
+	o := orm.NewOrm()
+	err := o.Read(rel, "Course", "Teacher")
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	return nil
+}
+
+// SetStudentGradeRel
+func SetStudentGradeRel(courseStudentRel *utils.CourseStudentRel) error {
+	// 计算根据成绩绩点
+	courseStudentRel.StudentPoint = (courseStudentRel.StudentResults - 50)/10
+	if courseStudentRel.StudentPoint < 0 {
+		courseStudentRel.StudentPoint = 0
+	} else if courseStudentRel.StudentPoint > 4 {
+		courseStudentRel.StudentPoint = 4
+	}
+	o := orm.NewOrm()
+	_, err := o.QueryTable("course_student_rel").
+		Filter("student_id", courseStudentRel.StudentId).Filter("course_id", courseStudentRel.CourseId).
+		Update(orm.Params{
+			"student_results": courseStudentRel.StudentResults,
+			"student_point":   courseStudentRel.StudentPoint,
+		})
+	if err!=nil {
+		logs.Error(err)
+		return err
+	}
+	return nil
+}
+

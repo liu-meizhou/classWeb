@@ -19,10 +19,10 @@ var tokenConfig = &TokenConfig{}
 type TokenInfo struct {
 	LoginId  string `form:"loginId"`
 	Password string `form:"password"`
-	UserType int    `form:"userType"`
+	UserType string `form:"userType"`
 }
 
-func NewTokenInfo(id, password string, userType int) *TokenInfo {
+func NewTokenInfo(id, password, userType string) *TokenInfo {
 	return &TokenInfo{
 		id,
 		password,
@@ -79,7 +79,7 @@ func ParseToken(tokenString string) (*TokenInfo, error) {
 	if token != nil {
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if ok && token.Valid {
-			return NewTokenInfo(claims["id"].(string), claims["password"].(string), claims["userType"].(int)), nil
+			return NewTokenInfo(claims["id"].(string), claims["password"].(string), claims["userType"].(string)), nil
 		}
 	}
 	logs.Error(err)

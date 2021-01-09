@@ -27,6 +27,7 @@ func init() {
 		web.NewNamespace("/user/v1",
 			web.NSCond(controllers.Identify),
 			web.NSRouter("/version", &controllers.MainController{}),
+			web.NSRouter("/logout", &controllers.UserController{}, "get:Logout"),
 			web.NSNamespace("/course",
 				web.NSRouter("/show", &controllers.UserController{}, "get:GetCourse"),
 				web.NSRouter("/export", &controllers.UserController{}, "get:ExportCourse"),

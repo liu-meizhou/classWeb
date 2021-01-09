@@ -135,6 +135,48 @@ export const asyncRoutes = [
   visitorRouter,
 
   {
+    path: '/course',
+    component: Layout,
+    redirect: '/course/index',
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/course/index'),
+        name: 'course',
+        meta: { title: '我的课表', icon: 'el-icon-notebook-2', noCache: true }
+      }
+    ]
+  },
+
+  {
+    path: '/courseChoose',
+    component: Layout,
+    redirect: '/courseChoose/index',
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/course-choose/index'),
+        name: 'courseChoose',
+        meta: { title: '我要选课', icon: 'el-icon-circle-plus-outline', noCache: true }
+      }
+    ]
+  },
+
+  {
+    path: '/student',
+    component: Layout,
+    redirect: '/student/index',
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/student/index'),
+        name: 'student',
+        meta: { title: '我的学生', icon: 'peoples', noCache: true }
+      }
+    ]
+  },
+
+  {
     path: '/permission',
     component: Layout,
     redirect: '/permission/page',
