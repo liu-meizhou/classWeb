@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
 	"goweb/models"
@@ -30,22 +28,11 @@ func (this *VisitorController) Finish() {
 func (this *VisitorController) Login() {
 	// 防止重复登录
 	loginInfo := new(utils.TokenInfo)
-	body := this.Ctx.Input.RequestBody
-	if len(body)==0 {
-		this.Data["json"] = utils.ErrorReJson("传入不可为空")
+	err := utils.ParseBody(&this.Controller, loginInfo)
+	if err!=nil {
+		logs.Error(err)
 		this.ServeJSON()
 		return
-	}
-	err := json.Unmarshal(body, loginInfo)
-	if err!=nil {
-		err2 := this.ParseForm(loginInfo)
-		if err2!=nil {
-			err2 = fmt.Errorf(err.Error() + "   " + err2.Error())
-			logs.Error(err2)
-			this.Data["json"] = utils.ErrorReJson(err2.Error())
-			this.ServeJSON()
-			return
-		}
 	}
 	user, err := models.Login(loginInfo)
 	if err != nil {

@@ -13,6 +13,47 @@ type CourseController struct {
 	web.Controller
 }
 
+// CourseInfo Get请求获取某个课的详细信息
+// Post请求带上id则更新课程信息，不带id或者id为-1则添加课程信息
+func (this *CourseController) CourseInfo() {
+	// 获取token
+	token := this.Ctx.Input.Header("token")
+	// 从缓存获取当前登录用户
+	user := GetUser(token)
+	if user == nil {
+		this.Data["json"] = utils.NoIdentifyReJson("请登录...")
+		this.ServeJSON()
+		return
+	}
+	switch user.UserType {
+	case utils.ADMIN:
+		{
+			// admin
+			break
+		}
+	case utils.STUDENT:
+		{
+			// 学生
+			break
+		}
+	case utils.TEACHER:
+		{
+			// 老师
+			break
+		}
+	case utils.TEACHER_HEAD:
+		{
+			// 系主任
+			break
+		}
+	default:
+		{
+			this.Data["json"] = utils.NoFoundReJson("未知用户...")
+		}
+	}
+	this.ServeJSON()
+}
+
 // GetCourse 获取课表
 func (this *CourseController) GetCourse() {
 	// 获取token
@@ -191,8 +232,97 @@ func (this *CourseController) ChooseCourse() {
 	this.ServeJSON()
 }
 
-// CourseGrade 获取课程成绩等信息  Get请求获取学生课程成绩, Post请求进行设置成绩
+// CourseGrade 获取课程学生及其成绩信息  Get请求获取学生课程成绩, Post请求进行设置成绩
 func (this *CourseController) CourseGrade() {
+	// 获取token
+	token := this.Ctx.Input.Header("token")
+	// 从缓存获取当前登录用户
+	user := GetUser(token)
+	if user == nil {
+		this.Data["json"] = utils.NoIdentifyReJson("请登录...")
+		this.ServeJSON()
+		return
+	}
+	method := this.Ctx.Request.Method
+	switch user.UserType {
+	case utils.ADMIN:
+		{
+			// admin
+			break
+		}
+	case utils.STUDENT:
+		{
+			// 学生
+			break
+		}
+	case utils.TEACHER, utils.TEACHER_HEAD:
+		{
+			// 老师,系主任
+			teacherInfo := user.User.(*models.TeacherInfo)
+			if method == "GET" {
+				// 获取要查询的课程号
+				courseId := this.GetString("courseId")
+				if courseId == "" {
+					this.Data["json"] = utils.ErrorReJson("输入课程号")
+					break
+				}
+				course := &models.CourseInfo{CourseId: courseId}
+				if teacherInfo.TeacherType == utils.TEACHER {
+					err := models.IsTeacherCourse(&models.CourseTeacherRel{Course: course, Teacher: teacherInfo})
+					if err != nil {
+						logs.Error(err)
+						this.Data["json"] = utils.ErrorReJson("你无权限查询")
+						break
+					}
+				}
+				students, err := models.GetGradeCourse(course)
+				if err != nil {
+					this.Data["json"] = utils.ErrorReJson(err)
+					break
+				}
+				this.Data["json"] = utils.SuccessReJson(students)
+			} else if method == "POST" {
+				courseStudentRel := new(utils.CourseStudentRel)
+				err := utils.ParseBody(&this.Controller, courseStudentRel)
+				if err != nil {
+					logs.Error(err)
+					this.Data["json"] = utils.ErrorReJson(err.Error())
+					break
+				}
+				if courseStudentRel.StudentResults == 0 || courseStudentRel.CourseId == "" || courseStudentRel.StudentId == ""{
+					logs.Debug(courseStudentRel)
+					this.Data["json"] = utils.ErrorReJson("输入数据必须有课程id,学号和新成绩")
+					break
+				}
+				err = models.IsTeacherCourse(&models.CourseTeacherRel{Course: &models.CourseInfo{CourseId: courseStudentRel.CourseId}, Teacher: teacherInfo})
+				if err != nil {
+					logs.Error(err)
+					this.Data["json"] = utils.ErrorReJson("你无权限查询")
+					break
+				}
+				// 设置成绩
+				err = models.SetStudentGradeRel(courseStudentRel)
+				if err != nil {
+					logs.Error(err)
+					this.Data["json"] = utils.ErrorReJson(err.Error())
+					break
+				}
+				// 更新缓存中的学生成绩  待做
+				this.Data["json"] = utils.SuccessReJson(courseStudentRel)
+			}
+			break
+		}
+	default:
+		{
+			this.Data["json"] = utils.NoFoundReJson("未知用户...")
+		}
+	}
+	this.ServeJSON()
+}
+
+// CourseClass 获取课程班级信息
+// Get无班级id参数获取该课程所有上课班, 有班级id进行班级统一选课
+func (this *CourseController) CourseClass() {
 	// 获取token
 	token := this.Ctx.Input.Header("token")
 	// 从缓存获取当前登录用户

@@ -8,12 +8,16 @@ import (
 
 // ParseBody 解析post请求的参数
 func ParseBody(this *web.Controller, data interface{}) error {
-	err := this.ParseForm(data)
+	body := this.Ctx.Input.RequestBody
+	if len(body)==0 {
+		return fmt.Errorf("传入不可为空")
+	}
+	err := json.Unmarshal(body, data)
 	if err!=nil {
-		body := this.Ctx.Input.RequestBody
-		err2 := json.Unmarshal(body, data)
+		err2 := this.ParseForm(data)
 		if err2!=nil {
-			return fmt.Errorf(err.Error() + "   " + err2.Error())
+			err = fmt.Errorf(err.Error() + "   " + err2.Error())
+			return err
 		}
 	}
 	return nil
