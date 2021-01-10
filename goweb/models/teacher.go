@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 	"goweb/utils"
@@ -136,7 +137,9 @@ func GetGradeCourse(teacher *TeacherInfo, pageInfo *utils.PageInfo, course *Cour
 func IsTeacherCourse(rel *CourseTeacherRel) error {
 	o := orm.NewOrm()
 	err := o.Read(rel, "Course", "Teacher")
-	if err != nil {
+	if err == orm.ErrNoRows {
+		return fmt.Errorf("这课不是你的,或者课程号输入错误")
+	} else if err != nil {
 		logs.Error(err)
 		return err
 	}

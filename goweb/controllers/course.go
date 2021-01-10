@@ -373,7 +373,7 @@ func (this *CourseController) CourseGrade() {
 					err := models.IsTeacherCourse(&models.CourseTeacherRel{Course: course, Teacher: teacherInfo})
 					if err != nil {
 						logs.Error(err)
-						this.Data["json"] = utils.ErrorReJson("你无权限查询")
+						this.Data["json"] = utils.ErrorReJson(err.Error())
 						break
 					}
 				}
@@ -400,7 +400,7 @@ func (this *CourseController) CourseGrade() {
 				err = models.IsTeacherCourse(&models.CourseTeacherRel{Course: &models.CourseInfo{CourseId: courseStudentRel.CourseId}, Teacher: teacherInfo})
 				if err != nil {
 					logs.Error(err)
-					this.Data["json"] = utils.ErrorReJson("你无权限查询")
+					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break
 				}
 				// 设置成绩
@@ -423,7 +423,7 @@ func (this *CourseController) CourseGrade() {
 	this.ServeJSON()
 }
 
-// CourseClass 获取课程班级信息
+// CourseClass 获取课程班级信息,带上课程id
 // Get无班级id参数获取该课程所有上课班, 有班级id进行班级统一选课
 func (this *CourseController) CourseClass() {
 	// 获取token
@@ -450,9 +450,46 @@ func (this *CourseController) CourseClass() {
 	case utils.TEACHER, utils.TEACHER_HEAD:
 		{
 			// 老师,系主任
-			//teacherInfo := user.User.(*models.TeacherInfo)
+			teacherInfo := user.User.(*models.TeacherInfo)
 			if method == "GET" {
-
+				courseId := this.GetString("courseId")
+				if courseId == "" {
+					this.Data["json"] = utils.ErrorReJson("请输入课程号")
+					break
+				}
+				course := &models.CourseInfo{CourseId: courseId}
+				classId := this.GetString("classId")
+				if classId == "" {
+					// 获取该课程的所有班级信息
+					if teacherInfo.TeacherType == utils.TEACHER {
+						err := models.IsTeacherCourse(&models.CourseTeacherRel{Course: course, Teacher: teacherInfo})
+						if err != nil {
+							logs.Error(err)
+							this.Data["json"] = utils.ErrorReJson(err.Error())
+							break
+						}
+					}
+					err := models.GetCourseClass(course)
+					if err != nil {
+						logs.Error(err)
+						this.Data["json"] = utils.ErrorReJson(err.Error())
+						break
+					}
+					this.Data["json"] = utils.ErrorReJson(course.Classes)
+					break
+				}
+				// 给班级统一选课
+				if teacherInfo.TeacherType == utils.TEACHER {
+					this.Data["json"] = utils.ErrorReJson("你无权操作")
+					break
+				}
+				err := models.SetClassCourse(&models.ClassInfo{ClassId: courseId}, course)
+				if err != nil {
+					logs.Error(err)
+					this.Data["json"] = utils.ErrorReJson(err.Error())
+					break
+				}
+				this.Data["json"] = utils.SuccessReJson("成功选上")
 			} else if method == "POST" {
 
 			}

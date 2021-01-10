@@ -30,12 +30,15 @@ func init() {
 	}
 }
 
-func genDB() {
+func genDB(isData bool) {
 	// automatically build table
 	err := orm.RunSyncdb("default", true, true)
 	if err != nil {
 		logs.Info(err)
 		os.Exit(-1)
+	}
+	if !isData {
+		return
 	}
 	o := orm.NewOrm()
 
@@ -272,7 +275,7 @@ func main() {
 
 	// 生成数据库
 	orm.Debug = true
-	//genDB()
+	//genDB(false)
 
 	// 启动web
 	web.Run()
