@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
+	"goweb/utils"
 )
 
 //sql := `select * from course_info where course_id in
@@ -45,6 +46,60 @@ import (
 //	o.LoadRelated(student.Courses[course], "ClassGroups")
 //}
 //return nil
+const canChooseCourse = "专业选修课程"
+
+func ReadStudent(studentId string) (*StudentInfo, error) {
+	qb, err := orm.NewQueryBuilder("postgres")
+	if err != nil {
+		logs.Error(err)
+		return nil, err
+	}
+
+	// 构建查询对象
+	qb.Select(GetStudentColumn(), GetClassColumn(), GetCourseStudentRelColumn(), GetCourseColumn()).
+		From("student_info").
+		LeftJoin("class_info").On("class_info.class_id=student_info.class_id").
+		LeftJoin("course_student_rel").On("course_student_rel.student_id=student_info.student_id").
+		LeftJoin("course_info").On("course_info.course_id=course_student_rel.course_id").
+		Where("student_info.student_id = ?")
+
+	// 导出 SQL 语句
+	sql := qb.String()
+
+	o := orm.NewOrm()
+	var maps []orm.Params
+	_, err = o.Raw(sql, studentId).Values(&maps)
+	if err != nil {
+		logs.Error(err)
+		return nil, err
+	}
+	student := ParseStudent(maps)
+
+	return student, nil
+}
+
+func CreateStudent(student *StudentInfo) error {
+	o := orm.NewOrm()
+	_, err := o.Insert(student)
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	return nil
+}
+
+func UpdateStudent(student *StudentInfo) error {
+	o := orm.NewOrm()
+	_, err := o.Update(student)
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	return nil
+}
+
+func DeleteStudent(student *StudentInfo)  {
+}
 
 func GetStudentCourse(student *StudentInfo) error {
 	qb, err := orm.NewQueryBuilder("postgres")
@@ -55,7 +110,7 @@ func GetStudentCourse(student *StudentInfo) error {
 
 	// 构建查询对象
 	qb.Select(GetCourseColumn(), GetCourseBaseColumn(), GetCourseTeacherRelColumn(), GetTeacherColumn(), GetCourseClassRelColumn(),
-		GetClassColumn(), GetCourseGroupRelColumn(), GetClassGroupColumn(), GetCourseStudentRelColumn()).
+		GetClassColumn(), GetCourseGroupRelColumn(), GetCourseGroupColumn(), GetCourseStudentRelColumn()).
 		From("course_info").
 		LeftJoin("course_base_info").On("course_base_info.course_id=course_info.course_id").
 		LeftJoin("course_teacher_rel").On("course_teacher_rel.course_id=course_info.course_id").
@@ -69,7 +124,6 @@ func GetStudentCourse(student *StudentInfo) error {
 
 	// 导出 SQL 语句
 	sql := qb.String()
-	logs.Debug(sql)
 
 	o := orm.NewOrm()
 	var maps []orm.Params
@@ -85,15 +139,12 @@ func GetStudentCourse(student *StudentInfo) error {
 	return nil
 }
 
-const canChooseCourse = "专业选修课程"
-
-func GetChooseCourse(student *StudentInfo) ([]*CourseInfo, error) {
+func GetChooseCourse(student *StudentInfo, pageInfo *utils.PageInfo, course *CourseInfo) error {
 	qb, err := orm.NewQueryBuilder("postgres")
 	if err != nil {
 		logs.Error(err)
-		return nil, err
+		return err
 	}
-
 	// 构建查询对象
 	qb.Select(GetCourseColumn(), GetCourseBaseColumn(), GetCourseTeacherRelColumn(), GetTeacherColumn(),
 		GetCourseStudentRelColumn()).
@@ -106,8 +157,33 @@ func GetChooseCourse(student *StudentInfo) ([]*CourseInfo, error) {
 		//LeftJoin("course_group_rel").On("course_group_rel.course_id=course_info.course_id").
 		//LeftJoin("class_group_info").On("class_group_info.class_group_id=course_group_rel.class_group_id").
 		LeftJoin("course_student_rel").On("course_info.course_id = course_student_rel.course_id").
-		Where("course_info.course_properties = ?").
-		Limit(10).Offset(0)
+		Where("course_info.course_properties = ?")
+	var args []interface{}
+	args = append(args, canChooseCourse)
+	// 构建查询参数
+	if course.CourseName != "" {
+		qb.And("course_info.course_name like ?")
+		args = append(args, "%" + course.CourseName + "%")
+	}
+	if course.CourseScores != 0 {
+		qb.And("course_info.course_scores = ?")
+		args = append(args, course.CourseScores)
+	}
+	if course.CourseWay != "" {
+		qb.And("course_info.course_way = ?")
+		args = append(args, course.CourseWay)
+	}
+	if course.CourseCount != 0 {
+		qb.And("course_info.course_count = ?")
+		args = append(args, course.CourseCount)
+	}
+	//if course.CourseBases != nil {
+	//	for _, courseBase := range course.CourseBases {
+	//		if  {
+	//
+	//		}
+	//	}
+	//}
 
 	// 导出 SQL 语句
 	sql := qb.String()
@@ -115,16 +191,14 @@ func GetChooseCourse(student *StudentInfo) ([]*CourseInfo, error) {
 
 	o := orm.NewOrm()
 	var maps []orm.Params
-	num, err := o.Raw(sql, canChooseCourse).Values(&maps)
+	_, err = o.Raw(sql, args).Values(&maps)
 	if err != nil {
 		logs.Error(err)
-		return nil, err
+		return err
 	}
-	logs.Info(num)
-
 	courses := ParseCourses(maps)
-
-	return courses, nil
+	pageInfo.Lists = courses
+	return nil
 }
 
 func ChooseCourse(rel *CourseStudentRel) error {

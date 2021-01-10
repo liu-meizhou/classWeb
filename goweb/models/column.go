@@ -1,9 +1,9 @@
 package models
 
 func GetStudentColumn() string {
-	// "student_info.student_password",
 	return `student_info.student_id",
 "student_info.student_name",
+"student_info.student_password",
 "student_info.student_type",
 "student_info.student_sex", 
 "student_info.student_college",
@@ -21,9 +21,9 @@ func GetClassColumn() string {
 }
 
 func GetTeacherColumn() string {
-	// "teacher_info.teacher_password",
 	return `teacher_info.teacher_id",
 "teacher_info.teacher_name",
+"teacher_info.teacher_password",
 "teacher_info.teacher_type",
 "teacher_info.teacher_sex", 
 "teacher_info.teacher_college",
@@ -63,11 +63,11 @@ func GetCourseBaseColumn() string {
 "course_base_info.course_base_updated_time`
 }
 
-func GetClassGroupColumn() string {
-	return `class_group_info.class_group_id",
-"class_group_info.class_group_name",
-"class_group_info.class_group_created_time",
-"class_group_info.class_group_updated_time`
+func GetCourseGroupColumn() string {
+	return `course_group_info.course_group_id",
+"course_group_info.course_group_name",
+"course_group_info.course_group_created_time",
+"course_group_info.course_group_updated_time`
 }
 
 func GetCourseStudentRelColumn() string {
@@ -77,8 +77,8 @@ func GetCourseStudentRelColumn() string {
 "course_student_rel.student_point`
 }
 
-func GetClassGroupTeacherRelColumn() string {
-	return `class_group_teacher_rel.is_charge`
+func GetCourseGroupTeacherRelColumn() string {
+	return `course_group_teacher_rel.is_charge`
 }
 
 func GetCourseClassRelColumn() string {

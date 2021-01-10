@@ -6,6 +6,63 @@ import (
 	"goweb/utils"
 )
 
+func ReadTeacher(teacherId string) (*TeacherInfo, error) {
+	qb, err := orm.NewQueryBuilder("postgres")
+	if err != nil {
+		logs.Error(err)
+		return nil, err
+	}
+
+	// 构建查询对象
+	qb.Select(GetTeacherColumn(), GetClassColumn(),
+		GetCourseGroupRelColumn(), GetCourseGroupColumn(),
+		GetCourseTeacherRelColumn(), GetCourseColumn()).
+		From("teacher_info").
+		LeftJoin("class_info").On("class_info.teacher_id=teacher_info.teacher_id").
+		LeftJoin("course_group_rel").On("course_group_rel.teacher_id=teacher_info.teacher_id").
+		LeftJoin("course_group_info").On("class_group_info.class_group_id=course_group_rel.class_group_id").
+		LeftJoin("course_teacher_rel").On("course_teacher_rel.teacher_id=teacher_info.teacher_id").
+		LeftJoin("course_info").On("course_info.course_id=course_student_rel.course_id").
+		Where("teacher_info.teacher_id = ?")
+
+	// 导出 SQL 语句
+	sql := qb.String()
+
+	o := orm.NewOrm()
+	var maps []orm.Params
+	_, err = o.Raw(sql, teacherId).Values(&maps)
+	if err != nil {
+		logs.Error(err)
+		return nil, err
+	}
+	teacher := ParseTeacher(maps)
+
+	return teacher, nil
+}
+
+func CreateTeacher(teacher *TeacherInfo) error {
+	o := orm.NewOrm()
+	_, err := o.Insert(teacher)
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	return nil
+}
+
+func UpdateTeacher(teacher *TeacherInfo) error {
+	o := orm.NewOrm()
+	_, err := o.Update(teacher)
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	return nil
+}
+
+func DeleteTeacher(student *TeacherInfo)  {
+}
+
 // GetTeacherCourse
 func GetTeacherCourse(teacher *TeacherInfo) error {
 	qb, err := orm.NewQueryBuilder("postgres")
@@ -15,7 +72,7 @@ func GetTeacherCourse(teacher *TeacherInfo) error {
 	}
 
 	qb.Select(GetCourseColumn(), GetCourseBaseColumn(), GetCourseTeacherRelColumn(), GetTeacherColumn(), GetCourseClassRelColumn(),
-		GetClassColumn(), GetCourseGroupRelColumn(), GetClassGroupColumn(), GetCourseStudentRelColumn()).
+		GetClassColumn(), GetCourseGroupRelColumn(), GetCourseGroupColumn(), GetCourseStudentRelColumn()).
 		From("course_info").
 		LeftJoin("course_base_info").On("course_base_info.course_id=course_info.course_id").
 		InnerJoin("course_teacher_rel").On("course_info.course_id=course_teacher_rel.course_id").
@@ -23,7 +80,7 @@ func GetTeacherCourse(teacher *TeacherInfo) error {
 		LeftJoin("course_class_rel").On("course_class_rel.course_id=course_info.course_id").
 		LeftJoin("class_info").On("class_info.class_id=course_class_rel.class_id").
 		LeftJoin("course_group_rel").On("course_group_rel.course_id=course_info.course_id").
-		LeftJoin("class_group_info").On("class_group_info.class_group_id=course_group_rel.class_group_id").
+		LeftJoin("course_group_info").On("class_group_info.class_group_id=course_group_rel.class_group_id").
 		LeftJoin("course_student_rel").On("course_info.course_id=course_student_rel.course_id").
 		Where("course_teacher_rel.teacher_id = ?")
 
@@ -46,11 +103,11 @@ func GetTeacherCourse(teacher *TeacherInfo) error {
 }
 
 // GetGradeCourse
-func GetGradeCourse(course *CourseInfo) ([]*StudentInfo, error) {
+func GetGradeCourse(teacher *TeacherInfo, pageInfo *utils.PageInfo, course *CourseInfo) error {
 	qb, err := orm.NewQueryBuilder("postgres")
 	if err != nil {
 		logs.Error(err)
-		return nil, err
+		return err
 	}
 
 	qb.Select(GetCourseStudentRelColumn(), GetStudentColumn(), GetClassColumn()).
@@ -65,15 +122,14 @@ func GetGradeCourse(course *CourseInfo) ([]*StudentInfo, error) {
 
 	o := orm.NewOrm()
 	var maps []orm.Params
-	num, err := o.Raw(sql, course.CourseId).Values(&maps)
+	_, err = o.Raw(sql, course.CourseId).Values(&maps)
 	if err != nil {
 		logs.Error(err)
-		return nil, err
+		return err
 	}
-	logs.Info(num)
-
 	students := ParseCourseStudent(maps)
-	return students, nil
+	pageInfo.Lists = students
+	return nil
 }
 
 // IsTeacherCourse 判断输入是否在库

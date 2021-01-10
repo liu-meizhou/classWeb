@@ -159,8 +159,8 @@ func genDB() {
 		logs.Info(err)
 	}
 	// 创建课程组1 计科
-	classGroupInfo1 := new(models.ClassGroupInfo)
-	classGroupInfo1.ClassGroupName = "计科"
+	classGroupInfo1 := new(models.CourseGroupInfo)
+	classGroupInfo1.CourseGroupName = "计科"
 	_, err = o.Insert(classGroupInfo1)
 	if err != nil {
 		logs.Info(err)
@@ -182,12 +182,12 @@ func genDB() {
 		logs.Info(err)
 	}
 	// 创建课程组和老师关系  李传中和杨朔在 计科课组
-	classGroupTeacherRel1 := new(models.ClassGroupTeacherRel)
-	classGroupTeacherRel1.ClassGroup = classGroupInfo1
+	classGroupTeacherRel1 := new(models.CourseGroupTeacherRel)
+	classGroupTeacherRel1.CourseGroup = classGroupInfo1
 	classGroupTeacherRel1.Teacher = teacherInfo1
 	classGroupTeacherRel1.IsCharge = true
-	classGroupTeacherRel2 := new(models.ClassGroupTeacherRel)
-	classGroupTeacherRel2.ClassGroup = classGroupInfo1
+	classGroupTeacherRel2 := new(models.CourseGroupTeacherRel)
+	classGroupTeacherRel2.CourseGroup = classGroupInfo1
 	classGroupTeacherRel2.Teacher = teacherInfo2
 	classGroupTeacherRel2.IsCharge = false
 	_, err = o.Insert(classGroupTeacherRel1)
@@ -224,10 +224,10 @@ func genDB() {
 	}
 	// 机器学习与数据挖掘和软件工程导论在同个课组
 	courseGroupRel1 := new(models.CourseGroupRel)
-	courseGroupRel1.ClassGroup = classGroupInfo1
+	courseGroupRel1.CourseGroup = classGroupInfo1
 	courseGroupRel1.Course = courseInfo1
 	courseGroupRel2 := new(models.CourseGroupRel)
-	courseGroupRel2.ClassGroup = classGroupInfo1
+	courseGroupRel2.CourseGroup = classGroupInfo1
 	courseGroupRel2.Course = courseInfo2
 	_, err = o.Insert(courseGroupRel1)
 	if err != nil {
@@ -272,7 +272,7 @@ func main() {
 
 	// 生成数据库
 	orm.Debug = true
-	//genDB()
+	genDB()
 
 	// 启动web
 	web.Run()
