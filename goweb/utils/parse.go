@@ -13,3 +13,11 @@ type CourseStudentRel struct {
 	CourseStudentRelUpdatedTime time.Time `json:"updatedTime"`
 }
 
+// CourseStudentRel 学生课程联系表
+type CourseClassRel struct {
+	CourseClassRelId          int       `json:"id"` // 学生课程联系表id,主键,自增
+	CourseId                  string    `json:"courseId" form:"courseId"`
+	ClassId                   string    `json:"classId" form:"classId"`
+	CourseClassRelCreatedTime time.Time `json:"createdTime"`
+	CourseClassRelUpdatedTime time.Time `json:"updatedTime"`
+}

@@ -29,16 +29,19 @@ func (this *TeacherController) TeacherInfo() {
 	case utils.ADMIN:
 		{
 			// admin
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.STUDENT:
 		{
 			// 学生
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER:
 		{
 			// 老师
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER_HEAD:
@@ -103,16 +106,19 @@ func (this *TeacherController) CreateTeacher() {
 	case utils.ADMIN:
 		{
 			// admin
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.STUDENT:
 		{
 			// 学生
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER:
 		{
 			// 老师
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER_HEAD:
@@ -161,21 +167,25 @@ func (this *TeacherController) GetTeacher() {
 	case utils.ADMIN:
 		{
 			// admin
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.STUDENT:
 		{
 			// 学生
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER:
 		{
 			// 老师
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER_HEAD:
 		{
 			// 系主任
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	default:

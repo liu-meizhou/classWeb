@@ -47,17 +47,17 @@ type ClassInfo struct {
 
 // TeacherInfo 老师信息表 连表优先 班级->课程->课组 (具体不知道课组的需求量)
 type TeacherInfo struct {
-	TeacherId          string             `json:"id" orm:"pk"`                                                                 // 教工号,id,主键
-	TeacherPassword    string             `json:"-"`                                                                           // 登录密码
-	TeacherType        string             `json:"userType" orm:"size(5)"`                                                      // 老师用户类型
-	TeacherName        string             `json:"name" orm:"size(50)"`                                                         // 老师名字
+	TeacherId          string             `json:"id" orm:"pk" form:"id"`                                                                 // 教工号,id,主键
+	TeacherPassword    string             `json:"-" form:"password"`                                                                           // 登录密码
+	TeacherType        string             `json:"userType" orm:"size(5)" form:"userType"`                                                      // 老师用户类型
+	TeacherName        string             `json:"name" orm:"size(50)" form:"name"`                                                         // 老师名字
 	Classes            []*ClassInfo       `json:"classes" orm:"reverse(many)"`                                                 // 教学班主
 	Courses            []*CourseInfo      `json:"courses" orm:"rel(m2m);rel_through(goweb/models.CourseTeacherRel)"`           // 该老师教的课程
 	CourseGroups       []*CourseGroupInfo `json:"courseGroups" orm:"rel(m2m);rel_through(goweb/models.CourseGroupTeacherRel)"` // 该老师的课组
-	TeacherSex         string             `json:"sex" orm:"size(10)"`                                                          // 老师性别
-	TeacherCollege     string             `json:"college" orm:"size(50)"`                                                      // 老师所在学院
-	TeacherBirth       time.Time          `json:"birth" orm:"auto_now;type(datetime)"`                                         // 老师出生日期
-	TeacherTime        time.Time          `json:"enterSchoolTime" orm:"auto_now_add;type(datetime)"`                           // 老师加入学校日期
+	TeacherSex         string             `json:"sex" orm:"size(10)" form:"sex"`                                                          // 老师性别
+	TeacherCollege     string             `json:"college" orm:"size(50)" form:"college"`                                                      // 老师所在学院
+	TeacherBirth       time.Time          `json:"birth" orm:"auto_now;type(datetime)" form:"birth"`                                         // 老师出生日期
+	TeacherTime        time.Time          `json:"enterSchoolTime" orm:"auto_now_add;type(datetime)" form:"enterSchoolTime"`                           // 老师加入学校日期
 	IsCharge           bool               `json:"isChargeGroup" orm:"-"`
 	TeacherCreatedTime time.Time          `json:"createdTime" orm:"auto_now_add;type(datetime)"`
 	TeacherUpdatedTime time.Time          `json:"updatedTime" orm:"auto_now;type(datetime)"`
@@ -74,7 +74,7 @@ type CourseInfo struct {
 	CourseProperties string             `json:"property" orm:"size(50)"`                        // 课程性质 专业必修，专业选修
 	CourseBases      []*CourseBaseInfo  `json:"baseInfos" orm:"reverse(many)"`                  // 上课时间地点
 	CourseScores     float64            `json:"score" orm:"digits(4);decimals(2)" form:"score"` // 课程学分
-	CourseWay        string             `json:"checkWay" orm:"size(10)"`                        // 考核方式
+	CourseWay        string             `json:"checkWay" orm:"size(10)" form:"checkWay"`                        // 考核方式
 	CourseCount      float64            `json:"courseHour" orm:"digits(5);decimals(2)"`         // 学时, 单位小时
 	StudentResults   float64            `json:"grade" orm:"-"`                                  // 课程成绩
 	StudentPoint     float64            `json:"point" orm:"-"`                                  // 课程绩点

@@ -1,0 +1,45 @@
+
+###
+# 查看班级信息
+GET {{path}}{{user-path}}/class/info?classId=1
+token: {{token}}
+
+###
+# 修改班级信息
+POST {{path}}{{user-path}}/class/info
+token: {{token}}
+
+{
+    "id":"1",
+    "name":"数学"
+}
+
+###
+# 创建班级信息
+POST {{path}}{{user-path}}/class/create
+token: {{token}}
+
+{
+    "id":"1",
+    "name":"数学"
+}
+
+###
+# 获取某个班级的所选课程列表
+GET {{path}}{{user-path}}/class/course?classId=1
+token: {{token}}
+
+###
+# 给某个班级统一选某节课
+POST {{path}}{{user-path}}/class/course
+token: {{token}}
+
+{
+    "courseId":"1",
+    "classId":"1"
+}
+
+###
+# 获取某个班级的学生绩点排序列表
+GET {{path}}{{user-path}}/class/gradeSort?classId=1
+token: {{token}}

@@ -1,0 +1,68 @@
+# 登录一次即可 token和登录用户的信息会缓存在全局变量 其它请求会自动携带token
+###
+# 登录学生
+POST {{path}}{{visitor-path}}/login
+
+{
+    "loginId":"1865400006",
+    "password":"123456",
+    "userType":"2"
+}
+
+> {%
+client.global.set("token", response.body['data']['token']);
+client.global.set("user", response.body['data']['user']);
+%}
+
+### 
+# 登录老师
+POST {{path}}{{visitor-path}}/login
+
+{
+    "loginId":"111666",
+    "password":"123456",
+    "userType":"3"
+}
+
+> {%
+client.global.set("token", response.body['data']['token']);
+client.global.set("user", response.body['data']['user']);
+%}
+
+###
+# 登录系主任
+POST {{path}}{{visitor-path}}/login
+
+{
+    "loginId":"100755",
+    "password":"123456",
+    "userType":"4"
+}
+
+> {%
+client.global.set("token", response.body['data']['token']);
+client.global.set("user", response.body['data']['user']);
+%}
+
+###
+# 登录自定义
+POST {{path}}{{visitor-path}}/login
+
+{
+    "loginId":"1865400006",
+    "password":"123456", 
+    "userType":"2" 
+}
+
+> {%
+client.global.set("token", response.body['data']['token']);
+client.global.set("user", response.body['data']['user']);
+%}
+
+###
+# 注册(暂时未做)
+POST {{path}}{{visitor-path}}/register
+
+{
+  
+}

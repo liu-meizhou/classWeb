@@ -1,0 +1,37 @@
+
+###
+# 查看老师信息
+GET {{path}}{{user-path}}/teacher/info?teacherId=1
+token: {{token}}
+
+###
+# 修改老师信息
+POST {{path}}{{user-path}}/teacher/info
+token: {{token}}
+
+{
+    "id":"1",
+    "password":"123456",
+    "userType":"3"
+    "name":"灰原",
+    "sex":"男",
+    "college":"计算机",
+    "birth":"",
+    "enterSchoolTime": ""
+}
+
+###
+# 创建课程信息
+POST {{path}}{{user-path}}/teacher/create
+token: {{token}}
+
+{
+    "id":"1",
+    "password":"123456",
+    "userType":"小哀"
+    "name":"数学",
+    "sex":"男",
+    "college":"计算机",
+    "birth":"",
+    "enterSchoolTime": ""
+}

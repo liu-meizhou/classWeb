@@ -1,0 +1,38 @@
+
+###
+# 查看学生信息
+GET {{path}}{{user-path}}/student/info?studentId=1
+token: {{token}}
+
+###
+# 修改课程信息
+POST {{path}}{{user-path}}/student/info
+token: {{token}}
+
+{
+    "id":"1",
+    "password":"123456",
+    "userType":"2"
+    "name":"数学",
+    "sex":"男",
+    "college":"计算机",
+    "birth":"",
+    "enterSchoolTime": ""
+}
+
+###
+# 创建学生信息
+POST {{path}}{{user-path}}/student/create
+token: {{token}}
+
+{
+    "id":"1",
+    "password":"123456",
+    "userType":"2"
+    "name":"数学",
+    "sex":"男",
+    "college":"计算机",
+    "birth":"",
+    "enterSchoolTime": ""
+}
+

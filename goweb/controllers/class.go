@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
-	"github.com/prometheus/common/log"
 	"goweb/models"
 	"goweb/utils"
 )
@@ -28,16 +28,19 @@ func (this *ClassController) ClassInfo() {
 	case utils.ADMIN:
 		{
 			// admin
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.STUDENT:
 		{
 			// 学生
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER:
 		{
 			// 老师
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER_HEAD:
@@ -51,7 +54,7 @@ func (this *ClassController) ClassInfo() {
 				}
 				class, err := models.ReadClass(classId)
 				if err != nil {
-					log.Error(err)
+					logs.Error(err)
 					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break
 				}
@@ -60,7 +63,7 @@ func (this *ClassController) ClassInfo() {
 				class := new(models.ClassInfo)
 				err := utils.ParseBody(&this.Controller, class)
 				if err != nil {
-					log.Error(err)
+					logs.Error(err)
 					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break
 				}
@@ -71,7 +74,7 @@ func (this *ClassController) ClassInfo() {
 				// 修改学生
 				err = models.UpdateClass(class)
 				if err != nil {
-					log.Error(err)
+					logs.Error(err)
 					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break
 				}
@@ -102,16 +105,19 @@ func (this *ClassController) CreateClass() {
 	case utils.ADMIN:
 		{
 			// admin
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.STUDENT:
 		{
 			// 学生
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER:
 		{
 			// 老师
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER_HEAD:
@@ -120,7 +126,7 @@ func (this *ClassController) CreateClass() {
 			class := new(models.ClassInfo)
 			err := utils.ParseBody(&this.Controller, class)
 			if err != nil {
-				log.Error(err)
+				logs.Error(err)
 				this.Data["json"] = utils.ErrorReJson(err.Error())
 				break
 			}
@@ -130,7 +136,7 @@ func (this *ClassController) CreateClass() {
 			}
 			err = models.CreateClass(class)
 			if err != nil {
-				log.Error(err)
+				logs.Error(err)
 				this.Data["json"] = utils.ErrorReJson(err.Error())
 				break
 			}
@@ -162,16 +168,19 @@ func (this *ClassController) ClassCourse() {
 	case utils.ADMIN:
 		{
 			// admin
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.STUDENT:
 		{
 			// 学生
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER:
 		{
 			// 老师
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER_HEAD:
@@ -186,13 +195,31 @@ func (this *ClassController) ClassCourse() {
 				class := &models.ClassInfo{ClassId: classId}
 				err := models.GetClassCourse(class)
 				if err != nil {
-					log.Error(err)
+					logs.Error(err)
 					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break
 				}
 				this.Data["json"] = utils.SuccessReJson(class.Courses)
 			} else {
-
+				rel := new(utils.CourseClassRel)
+				err := utils.ParseBody(&this.Controller, rel)
+				if err != nil {
+					logs.Error(err)
+					this.Data["json"] = utils.ErrorReJson(err.Error())
+					break
+				}
+				if rel.ClassId == "" || rel.CourseId == "" {
+					this.Data["json"] = utils.ErrorReJson("请输入课程号和班级号")
+					break
+				}
+				err = models.SetClassCourse(&models.ClassInfo{ClassId: rel.ClassId},
+				&models.CourseInfo{CourseId: rel.CourseId})
+				if err != nil {
+					logs.Error(err)
+					this.Data["json"] = utils.ErrorReJson(err.Error())
+					break
+				}
+				this.Data["json"] = utils.SuccessReJson("成功选上")
 			}
 			break
 		}
@@ -220,16 +247,19 @@ func (this *ClassController) ClassSort() {
 	case utils.ADMIN:
 		{
 			// admin
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.STUDENT:
 		{
 			// 学生
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER:
 		{
 			// 老师
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER_HEAD:
@@ -244,7 +274,7 @@ func (this *ClassController) ClassSort() {
 				class := &models.ClassInfo{ClassId: classId}
 				err := models.GetClassStudentSort(class)
 				if err != nil {
-					log.Error(err)
+					logs.Error(err)
 					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break
 				}
@@ -278,21 +308,25 @@ func (this *ClassController) GetClass() {
 	case utils.ADMIN:
 		{
 			// admin
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.STUDENT:
 		{
 			// 学生
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER:
 		{
 			// 老师
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER_HEAD:
 		{
 			// 系主任
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
 			break
 		}
 	default:

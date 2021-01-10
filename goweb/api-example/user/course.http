@@ -1,0 +1,76 @@
+
+###
+# 查看课程信息
+GET {{path}}{{user-path}}/course/info?courseId=1
+token: {{token}}
+
+###
+# 修改课程信息
+POST {{path}}{{user-path}}/course/info
+token: {{token}}
+
+{
+    "id":"1",
+    "name":"数学",
+    "score":"2",
+    "checkWay": "考试"
+}
+
+###
+# 创建课程信息
+POST {{path}}{{user-path}}/course/create
+token: {{token}}
+
+{
+    "id":"2",
+    "name":"数学",
+    "score":"2",
+    "checkWay": "考试"
+}
+
+###
+# 获取个人课表
+GET {{path}}{{user-path}}/course/show
+token: {{token}}
+
+###
+# 获取选课列表
+POST {{path}}{{user-path}}/course/choose
+token: {{token}}
+
+{
+    "pageNo":"1",
+}
+
+###
+# 学生进行选课
+GET {{path}}{{user-path}}/course/choose?courseId=1
+token: {{token}}
+
+###
+# 课程所有学生成绩列表
+GET {{path}}{{user-path}}/course/grade?courseId=1
+token: {{token}}
+
+###
+# 设置学生某课程的成绩(系统自动根据成绩设置绩点)
+POST {{path}}{{user-path}}/course/grade
+token: {{token}}
+
+{
+    "studentId":"1",
+    "courseId":"1",
+    "grade":"x"
+}
+
+###
+# 课程所有班级信息列表
+GET {{path}}{{user-path}}/course/class?courseId=1
+token: {{token}}
+
+###
+# 给某个班级统一选某节课
+GET {{path}}{{user-path}}/course/class?courseId=1&classId=1
+token: {{token}}
+
+

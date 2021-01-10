@@ -22,7 +22,7 @@ func ReadCourse(courseId string) (*CourseInfo, error) {
 		LeftJoin("course_class_rel").On("course_class_rel.course_id=course_info.course_id").
 		LeftJoin("class_info").On("class_info.class_id=course_class_rel.class_id").
 		LeftJoin("course_group_rel").On("course_group_rel.course_id=course_info.course_id").
-		LeftJoin("course_group_info").On("class_group_info.class_group_id=course_group_rel.class_group_id").
+		LeftJoin("course_group_info").On("course_group_info.course_group_id=course_group_rel.course_group_id").
 		LeftJoin("course_student_rel").On("course_info.course_id = course_student_rel.course_id").
 		LeftJoin("student_info").On("course_student_rel.student_id = student_info.student_id").
 		Where("course_info.course_id = ?")

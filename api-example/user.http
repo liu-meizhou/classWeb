@@ -1,0 +1,9 @@
+
+@path = http://localhost:8080/user/v1
+###
+@authToken = {{token.response.body.$.data.token}}
+# 查看接口版本号
+@name = token
+Get {{path}}/version
+token: {{authToken}}
+

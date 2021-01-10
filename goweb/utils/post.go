@@ -3,7 +3,6 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
 )
 
@@ -21,9 +20,9 @@ func ParseBody(this *web.Controller, data interface{}) error {
 	if len(body)==0 {
 		return NullBody
 	}
-	logs.Debug(string(body))
 	err := json.Unmarshal(body, data)
 	if err!=nil {
+		fmt.Println(string(body))
 		err2 := this.ParseForm(data)
 		if err2!=nil {
 			err = fmt.Errorf(err.Error() + "   " + err2.Error())

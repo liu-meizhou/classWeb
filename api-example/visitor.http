@@ -1,0 +1,61 @@
+# 需要安装VS Cose 插件 ：REST Client
+
+// Ctrl+Shit+P 打开vscode命令 输入 "Rest Client: Switch Environment" 可以切换环境参数
+// 环境变量参数存放在 ./vscode/setting.json "rest-client.environmentVariables"字段
+
+@path = http://localhost:8080/visitor/v1
+@student = {"loginId":"1865400006", "password":"123456", "userType":"2" }
+@teacher = {"loginId":"111666", "password":"123456", "userType":"3" }
+@teacher-head = {"loginId":"100755", "password":"123456", "userType":"4" }
+
+# 登录一次即可 token信息会缓存在vscode 其它请求会自动携带token
+###
+# 登录学生
+POST {{path}}/login
+
+{
+    "loginId":"1865400006",
+    "password":"123456",
+    "userType":"2"
+};
+
+> {%
+client.global.set("token", response.body.json.data.token);
+%}
+
+###
+# 查看接口版本号
+@name = token
+Get http://localhost:8080/user/v1/version
+token: {{token}}
+
+
+### 
+# 登录老师
+POST {{path}}/login
+
+{{teacher}}
+
+###
+# 登录系主任
+POST {{path}}/login
+
+{{teacher-head}}
+
+###
+# 登录自定义
+POST {{path}}/login
+
+{
+    "loginId":"1865400006",
+    "password":"123456", 
+    "userType":"2" 
+}
+
+###
+# 注册(暂时未做)
+POST {{path}}/register
+
+{
+  
+}

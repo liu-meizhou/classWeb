@@ -1,0 +1,10 @@
+
+###
+# 查看接口版本号
+GET {{path}}/user/v1/version
+token: {{token}}
+
+###
+# 注销
+GET {{path}}/user/v1/logout
+token: {{token}}
