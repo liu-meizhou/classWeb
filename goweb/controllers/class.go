@@ -157,6 +157,7 @@ func (this *ClassController) ClassCourse() {
 		this.ServeJSON()
 		return
 	}
+	method := this.Ctx.Request.Method
 	switch user.UserType {
 	case utils.ADMIN:
 		{
@@ -176,6 +177,23 @@ func (this *ClassController) ClassCourse() {
 	case utils.TEACHER_HEAD:
 		{
 			// 系主任
+			if method == "GET"{
+				classId := this.GetString("classId")
+				if classId == "" {
+					this.Data["json"] = utils.ErrorReJson("请输入班级号")
+					break
+				}
+				class := &models.ClassInfo{ClassId: classId}
+				err := models.GetClassCourse(class)
+				if err != nil {
+					log.Error(err)
+					this.Data["json"] = utils.ErrorReJson(err.Error())
+					break
+				}
+				this.Data["json"] = utils.SuccessReJson(class.Courses)
+			} else {
+
+			}
 			break
 		}
 	default:

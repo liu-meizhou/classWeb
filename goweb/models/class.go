@@ -57,3 +57,13 @@ func UpdateClass(class *ClassInfo) error {
 	return nil
 }
 
+func GetClassCourse(class *ClassInfo) error {
+	o := orm.NewOrm()
+	_, err := o.LoadRelated(class, "Courses")
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	return nil
+}
+

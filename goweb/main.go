@@ -272,7 +272,7 @@ func main() {
 
 	// 生成数据库
 	orm.Debug = true
-	genDB()
+	//genDB()
 
 	// 启动web
 	web.Run()
