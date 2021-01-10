@@ -18,13 +18,14 @@ import (
 // StudentInfo 学生信息表 连表优先 班级->课程
 type StudentInfo struct {
 	StudentId          string        `json:"id" orm:"pk" form:"id"`                                                    // 学生学号,id,主键
-	StudentPassword    string        `json:"-" form:"password"`                                                 // 登录密码
+	StudentPassword    string        `json:"-" form:"password"`                                                        // 登录密码
 	StudentType        string        `json:"userType" orm:"size(5)" form:"userType"`                                   // 学生用户类型
 	Class              *ClassInfo    `json:"class" orm:"null;rel(fk);on_delete(set_null)"`                             // 所在班级
 	Courses            []*CourseInfo `json:"courses" orm:"rel(m2m);rel_through(goweb/models.CourseStudentRel)"`        // 学生拥有的课程
 	StudentName        string        `json:"name" orm:"size(50)" form:"name"`                                          // 学生名字
 	StudentSex         string        `json:"sex" orm:"size(10)" form:"sex"`                                            // 学生性别
 	StudentCollege     string        `json:"college" orm:"size(50)" form:"college"`                                    // 学生所在学院
+	StudentAllPoint    float64       `json:"allPoint" orm:"default(0);digits(4);decimals(2)"`                                  // 学生总绩点
 	StudentResults     float64       `json:"grade" orm:"-"`                                                            // 课程成绩
 	StudentPoint       float64       `json:"point" orm:"-"`                                                            // 课程绩点
 	StudentBirth       time.Time     `json:"birth" orm:"auto_now;type(datetime)" form:"birth"`                         // 学生出生日期
@@ -35,48 +36,48 @@ type StudentInfo struct {
 
 // ClassInfo 班级表 连表优先 老师->课程->学生
 type ClassInfo struct {
-	ClassId          string         `json:"id" orm:"pk" form:"id"`                                                     // 班级号,id,主键
-	ClassName        string         `json:"name" orm:"size(20)" form:"name"`                                             // 班级名
+	ClassId          string         `json:"id" orm:"pk" form:"id"`                                           // 班级号,id,主键
+	ClassName        string         `json:"name" orm:"size(20)" form:"name"`                                 // 班级名
 	Students         []*StudentInfo `json:"students" orm:"reverse(many)"`                                    // 班级内的学生
 	Courses          []*CourseInfo  `json:"courses" orm:"rel(m2m);rel_through(goweb/models.CourseClassRel)"` // 班级共同拥有的课程
-	Teacher          *TeacherInfo   `json:"teacher" orm:"null;rel(fk);on_delete(set_null)" form:"teacher"`                  // 班主任
+	Teacher          *TeacherInfo   `json:"teacher" orm:"null;rel(fk);on_delete(set_null)" form:"teacher"`   // 班主任
 	ClassCreatedTime time.Time      `json:"createdTime" orm:"auto_now_add;type(datetime)"`
 	ClassUpdatedTime time.Time      `json:"updatedTime" orm:"auto_now;type(datetime)"`
 }
 
 // TeacherInfo 老师信息表 连表优先 班级->课程->课组 (具体不知道课组的需求量)
 type TeacherInfo struct {
-	TeacherId          string            `json:"id" orm:"pk"`                                                               // 教工号,id,主键
-	TeacherPassword    string            `json:"-"`                                                                  // 登录密码
-	TeacherType        string            `json:"userType" orm:"size(5)"`                                                    // 老师用户类型
-	TeacherName        string            `json:"name" orm:"size(50)"`                                                       // 老师名字
-	Classes            []*ClassInfo      `json:"classes" orm:"reverse(many)"`                                               // 教学班主
-	Courses            []*CourseInfo     `json:"courses" orm:"rel(m2m);rel_through(goweb/models.CourseTeacherRel)"`         // 该老师教的课程
-	CourseGroups        []*CourseGroupInfo `json:"courseGroups" orm:"rel(m2m);rel_through(goweb/models.CourseGroupTeacherRel)"` // 该老师的课组
-	TeacherSex         string            `json:"sex" orm:"size(10)"`                                                        // 老师性别
-	TeacherCollege     string            `json:"college" orm:"size(50)"`                                                    // 老师所在学院
-	TeacherBirth       time.Time         `json:"birth" orm:"auto_now;type(datetime)"`                                       // 老师出生日期
-	TeacherTime        time.Time         `json:"enterSchoolTime" orm:"auto_now_add;type(datetime)"`                         // 老师加入学校日期
-	IsCharge           bool              `json:"isChargeGroup" orm:"-"`
-	TeacherCreatedTime time.Time         `json:"createdTime" orm:"auto_now_add;type(datetime)"`
-	TeacherUpdatedTime time.Time         `json:"updatedTime" orm:"auto_now;type(datetime)"`
+	TeacherId          string             `json:"id" orm:"pk"`                                                                 // 教工号,id,主键
+	TeacherPassword    string             `json:"-"`                                                                           // 登录密码
+	TeacherType        string             `json:"userType" orm:"size(5)"`                                                      // 老师用户类型
+	TeacherName        string             `json:"name" orm:"size(50)"`                                                         // 老师名字
+	Classes            []*ClassInfo       `json:"classes" orm:"reverse(many)"`                                                 // 教学班主
+	Courses            []*CourseInfo      `json:"courses" orm:"rel(m2m);rel_through(goweb/models.CourseTeacherRel)"`           // 该老师教的课程
+	CourseGroups       []*CourseGroupInfo `json:"courseGroups" orm:"rel(m2m);rel_through(goweb/models.CourseGroupTeacherRel)"` // 该老师的课组
+	TeacherSex         string             `json:"sex" orm:"size(10)"`                                                          // 老师性别
+	TeacherCollege     string             `json:"college" orm:"size(50)"`                                                      // 老师所在学院
+	TeacherBirth       time.Time          `json:"birth" orm:"auto_now;type(datetime)"`                                         // 老师出生日期
+	TeacherTime        time.Time          `json:"enterSchoolTime" orm:"auto_now_add;type(datetime)"`                           // 老师加入学校日期
+	IsCharge           bool               `json:"isChargeGroup" orm:"-"`
+	TeacherCreatedTime time.Time          `json:"createdTime" orm:"auto_now_add;type(datetime)"`
+	TeacherUpdatedTime time.Time          `json:"updatedTime" orm:"auto_now;type(datetime)"`
 }
 
 // CourseInfo 课程总表 连表优先级 上课基本信息 -> 老师 -> 班级 -> 课组 -> 学生
 type CourseInfo struct {
-	CourseId         string            `json:"id" orm:"pk" form:"id"`                          // 课程号,id,主键
-	Students         []*StudentInfo    `json:"students" orm:"reverse(many)"`                   // 选该课程的学生
-	Classes          []*ClassInfo      `json:"classes" orm:"reverse(many)"`                    // 选该课程的班级
-	Teachers         []*TeacherInfo    `json:"teachers" orm:"reverse(many)"`                   // 教该课的老师,1门课程可由多个老师来教
-	CourseGroups      []*CourseGroupInfo `json:"courseGroups" orm:"reverse(many)"`                // 该课在哪些课组中
-	CourseName       string            `json:"name" orm:"size(50)" form:"name"`                // 课程名
-	CourseProperties string            `json:"property" orm:"size(50)"`                        // 课程性质 专业必修，专业选修
-	CourseBases      []*CourseBaseInfo `json:"baseInfos" orm:"reverse(many)"`                  // 上课时间地点
-	CourseScores     float64           `json:"score" orm:"digits(4);decimals(2)" form:"score"` // 课程学分
-	CourseWay        string            `json:"checkWay" orm:"size(10)"`                        // 考核方式
-	CourseCount      float64           `json:"courseHour" orm:"digits(5);decimals(2)"`         // 学时, 单位小时
-	StudentResults   float64           `json:"grade" orm:"-"`                                  // 课程成绩
-	StudentPoint     float64           `json:"point" orm:"-"`                                  // 课程绩点
+	CourseId         string             `json:"id" orm:"pk" form:"id"`                          // 课程号,id,主键
+	Students         []*StudentInfo     `json:"students" orm:"reverse(many)"`                   // 选该课程的学生
+	Classes          []*ClassInfo       `json:"classes" orm:"reverse(many)"`                    // 选该课程的班级
+	Teachers         []*TeacherInfo     `json:"teachers" orm:"reverse(many)"`                   // 教该课的老师,1门课程可由多个老师来教
+	CourseGroups     []*CourseGroupInfo `json:"courseGroups" orm:"reverse(many)"`               // 该课在哪些课组中
+	CourseName       string             `json:"name" orm:"size(50)" form:"name"`                // 课程名
+	CourseProperties string             `json:"property" orm:"size(50)"`                        // 课程性质 专业必修，专业选修
+	CourseBases      []*CourseBaseInfo  `json:"baseInfos" orm:"reverse(many)"`                  // 上课时间地点
+	CourseScores     float64            `json:"score" orm:"digits(4);decimals(2)" form:"score"` // 课程学分
+	CourseWay        string             `json:"checkWay" orm:"size(10)"`                        // 考核方式
+	CourseCount      float64            `json:"courseHour" orm:"digits(5);decimals(2)"`         // 学时, 单位小时
+	StudentResults   float64            `json:"grade" orm:"-"`                                  // 课程成绩
+	StudentPoint     float64            `json:"point" orm:"-"`                                  // 课程绩点
 	//CourseMaxNumber      int           	`json:"courseMaxNumber" orm:"max_number"`                     // 课程的上线人数 -1为无上限
 	CourseCreatedTime time.Time `json:"createdTime" orm:"auto_now_add;type(datetime)"`
 	CourseUpdatedTime time.Time `json:"updatedTime" orm:"auto_now;type(datetime)"`
@@ -106,9 +107,9 @@ type CourseBaseInfo struct {
 type CourseGroupInfo struct {
 	CourseGroupId          int            `json:"id" orm:"pk;auto"`    // 课组id,主键,自增
 	CourseGroupName        string         `json:"name" orm:"size(50)"` // 课组名
-	IsCharge              bool           `json:"isCharge" orm:"-"`
-	Courses               []*CourseInfo  `json:"courses" orm:"rel(m2m);rel_through(goweb/models.CourseGroupRel)"` // 该课组中的课程
-	Teachers              []*TeacherInfo `json:"teachers" orm:"reverse(many)"`                                    // 该课组的老师
+	IsCharge               bool           `json:"isCharge" orm:"-"`
+	Courses                []*CourseInfo  `json:"courses" orm:"rel(m2m);rel_through(goweb/models.CourseGroupRel)"` // 该课组中的课程
+	Teachers               []*TeacherInfo `json:"teachers" orm:"reverse(many)"`                                    // 该课组的老师
 	CourseGroupCreatedTime time.Time      `json:"createdTime" orm:"auto_now_add;type(datetime)"`
 	CourseGroupUpdatedTime time.Time      `json:"updatedTime" orm:"auto_now;type(datetime)"`
 }
@@ -126,12 +127,12 @@ type CourseStudentRel struct {
 
 // CourseGroupTeacherRel 课组老师联系表
 type CourseGroupTeacherRel struct {
-	CourseGroupTeacherRelId          int             `orm:"pk;auto"` // 课组老师表id,主键,自增
+	CourseGroupTeacherRelId          int              `orm:"pk;auto"` // 课组老师表id,主键,自增
 	CourseGroup                      *CourseGroupInfo `orm:"null;rel(fk);on_delete(set_null)"`
-	Teacher                         *TeacherInfo    `orm:"null;rel(fk);on_delete(set_null)"`
-	IsCharge                        bool            // 是否负责该课组
-	CourseGroupTeacherRelCreatedTime time.Time       `orm:"auto_now_add;type(datetime)"`
-	CourseGroupTeacherRelUpdatedTime time.Time       `orm:"auto_now;type(datetime)"`
+	Teacher                          *TeacherInfo     `orm:"null;rel(fk);on_delete(set_null)"`
+	IsCharge                         bool             // 是否负责该课组
+	CourseGroupTeacherRelCreatedTime time.Time        `orm:"auto_now_add;type(datetime)"`
+	CourseGroupTeacherRelUpdatedTime time.Time        `orm:"auto_now;type(datetime)"`
 }
 
 // CourseClassRel 课程班级联系表
@@ -154,11 +155,11 @@ type CourseTeacherRel struct {
 
 // CourseGroupRel 课程与课程组联系表
 type CourseGroupRel struct {
-	CourseGroupRelId          int             `orm:"pk;auto"` // 课程与课程组表id,主键,自增
-	CourseGroup                *CourseGroupInfo `orm:"null;rel(fk);on_delete(set_null)"`
-	Course                    *CourseInfo     `orm:"null;rel(fk);on_delete(set_null)"`
-	CourseGroupRelCreatedTime time.Time       `orm:"auto_now_add;type(datetime)"`
-	CourseGroupRelUpdatedTime time.Time       `orm:"auto_now;type(datetime)"`
+	CourseGroupRelId          int              `orm:"pk;auto"` // 课程与课程组表id,主键,自增
+	CourseGroup               *CourseGroupInfo `orm:"null;rel(fk);on_delete(set_null)"`
+	Course                    *CourseInfo      `orm:"null;rel(fk);on_delete(set_null)"`
+	CourseGroupRelCreatedTime time.Time        `orm:"auto_now_add;type(datetime)"`
+	CourseGroupRelUpdatedTime time.Time        `orm:"auto_now;type(datetime)"`
 }
 
 func init() {

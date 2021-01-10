@@ -7,6 +7,7 @@ func GetStudentColumn() string {
 "student_info.student_type",
 "student_info.student_sex", 
 "student_info.student_college",
+"student_info.student_all_point",
 "student_info.student_birth",
 "student_info.student_time",
 "student_info.student_created_time",

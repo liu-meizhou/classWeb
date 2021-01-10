@@ -67,3 +67,30 @@ func GetClassCourse(class *ClassInfo) error {
 	return nil
 }
 
+func GetClassStudentSort(class *ClassInfo) error {
+	qb, err := orm.NewQueryBuilder("postgres")
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+
+	// 构建查询对象
+	qb.Select(GetStudentColumn()).
+		From("student_info").
+		LeftJoin("class_info").On("student_info.class_id=class_info.class_id").
+		Where("class_info.class_id = ?").
+		OrderBy("student_all_point").Desc()
+
+	// 导出 SQL 语句
+	sql := qb.String()
+
+	o := orm.NewOrm()
+	var maps []orm.Params
+	_, err = o.Raw(sql, class.ClassId).Values(&maps)
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	class.Students = ParseStudents(maps)
+	return nil
+}

@@ -32,6 +32,10 @@ func ParseStudentInfo(param orm.Params) *StudentInfo {
 	if studentCollege != nil {
 		student.StudentCollege = studentCollege.(string)
 	}
+	studentAllPoint := param["student_all_point"]
+	if studentAllPoint != nil {
+		student.StudentAllPoint, _ = strconv.ParseFloat(studentAllPoint.(string), 64)
+	}
 	studentBirth := param["student_birth"]
 	if studentBirth != nil {
 		student.StudentBirth, _ = time.Parse(time.RFC3339Nano, studentBirth.(string))
@@ -417,6 +421,47 @@ func ParseStudent(params []orm.Params) *StudentInfo {
 		}
 	}
 	return student
+}
+
+func ParseStudents(params []orm.Params) []*StudentInfo {
+	var students []*StudentInfo
+	studentMap := make(map[string]*StudentInfo)
+	courseMap := make(map[string]map[string]*CourseInfo)
+	for _, param := range params {
+		student := ParseStudentInfo(param)
+		if student == nil {
+			continue
+		}
+		course := ParseCourseInfo(param)
+		class := ParseClassInfo(param)
+		if oldStudent, ok := studentMap[student.StudentId]; ok {
+			if oldStudent.Class == nil {
+				oldStudent.Class = class
+			}
+			if course != nil {
+				if _, ok := courseMap[student.StudentId][course.CourseId]; !ok {
+					courseMap[student.StudentId][course.CourseId] = course
+					oldStudent.Courses = append(oldStudent.Courses, course)
+					continue
+				}
+			}
+			continue
+		}
+		if _, ok := courseMap[student.StudentId]; !ok {
+			courseMap[student.StudentId] = make(map[string]*CourseInfo)
+		}
+		studentMap[student.StudentId] = student
+
+		if course != nil {
+			courseMap[student.StudentId][course.CourseId] = course
+			student.Courses = append(student.Courses, course)
+		}
+		if class != nil {
+			student.Class = class
+		}
+		students = append(students, student)
+	}
+	return students
 }
 
 func ParseCourse(params []orm.Params) *CourseInfo {
