@@ -151,6 +151,61 @@ func (this *ClassController) CreateClass() {
 	this.ServeJSON()
 }
 
+// DeleteClass Get请求删除一个班级
+func (this *ClassController) DeleteClass() {
+	// 获取token
+	token := this.Ctx.Input.Header("token")
+	// 从缓存获取当前登录用户
+	user := GetUser(token)
+	if user == nil {
+		this.Data["json"] = utils.NoIdentifyReJson("请登录...")
+		this.ServeJSON()
+		return
+	}
+	switch user.UserType {
+	case utils.ADMIN:
+		{
+			// admin
+			this.Data["json"] = utils.SuccessReJson("目前你不能使用该功能...")
+			break
+		}
+	case utils.STUDENT:
+		{
+			// 学生
+			this.Data["json"] = utils.SuccessReJson("目前你不能使用该功能...")
+			break
+		}
+	case utils.TEACHER:
+		{
+			// 老师
+			this.Data["json"] = utils.SuccessReJson("目前你不能使用该功能...")
+			break
+		}
+	case utils.TEACHER_HEAD:
+		{
+			// 系主任
+			classId := this.GetString("classId")
+			if classId == "" {
+				this.Data["json"] = utils.ErrorReJson("请输入班级号")
+				break
+			}
+			err := models.DeleteClass(&models.ClassInfo{ClassId: classId})
+			if err != nil {
+				logs.Error(err)
+				this.Data["json"] = utils.ErrorReJson(err.Error())
+				break
+			}
+			this.Data["json"] = utils.SuccessReJson(classId)
+			break
+		}
+	default:
+		{
+			this.Data["json"] = utils.NoFoundReJson("未知用户...")
+		}
+	}
+	this.ServeJSON()
+}
+
 // ClassCourse Get请求获取班级所选的课程
 // Post请求为班级统一选课
 func (this *ClassController) ClassCourse() {

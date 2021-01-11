@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { getStudent } from '@/api/user/index'
+import { getStudent } from '@/api/user/course'
 export default {
   data() {
     return {

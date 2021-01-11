@@ -16,6 +16,14 @@ export function editClass(data) {
   })
 }
 
+export function deleteClass(classId) {
+  return request({
+    url: '/user/v1/class/delete',
+    method: 'get',
+    params: { classId }
+  })
+}
+
 export function createClass(data) {
   return request({
     url: '/user/v1/class/create',

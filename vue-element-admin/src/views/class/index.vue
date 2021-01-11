@@ -40,6 +40,11 @@
         icon="el-icon-edit"
         @click="editClass"
       >修改班级信息</el-button>
+      <el-button
+        type="danger"
+        icon="el-icon-edit"
+        @click="deleteClass"
+      >删除该班级</el-button>
       <el-divider />
       <div>
         <span>班级统一选择课程基本信息:</span>
@@ -150,9 +155,11 @@ import {
   getClass,
   getClassList,
   editClass,
+  deleteClass,
   createClass
 } from '@/api/user/class'
 import { getTeachers } from '@/api/user/teacher'
+import { editStudentClass } from '@/api/user/student'
 export default {
   data() {
     return {
@@ -226,6 +233,16 @@ export default {
       this.dialogName = '修改班级: ' + this.clazz.name
       this.dialogFormVisible = true
     },
+    deleteClass() {
+      deleteClass(this.clazz.id)
+        .then(res => {
+          this.clazz = null
+          this.getClasses()
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
     dialogEditClass() {
       if (this.dialogEditName === '添 加') {
         createClass(this.bufClass)
@@ -282,7 +299,7 @@ export default {
         .then(() => {
           this.$message({
             type: 'success',
-            message: '删除成功!'
+            message: '暂未开发此功能!'
           })
         })
         .catch(() => {
@@ -299,10 +316,17 @@ export default {
         type: 'warning'
       })
         .then(() => {
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          })
+          editStudentClass(row.id, '')
+            .then(res => {
+              this.getClass()
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              })
+            })
+            .catch(err => {
+              console.log(err)
+            })
         })
         .catch(() => {
           this.$message({

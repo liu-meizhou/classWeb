@@ -151,6 +151,62 @@ func (this *StudentController) CreateStudent() {
 	this.ServeJSON()
 }
 
+// EditClass Get编辑学生班级信息
+func (this *StudentController) EditClass() {
+	// 获取token
+	token := this.Ctx.Input.Header("token")
+	// 从缓存获取当前登录用户
+	user := GetUser(token)
+	if user == nil {
+		this.Data["json"] = utils.NoIdentifyReJson("请登录...")
+		this.ServeJSON()
+		return
+	}
+	switch user.UserType {
+	case utils.ADMIN:
+		{
+			// admin
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
+			break
+		}
+	case utils.STUDENT:
+		{
+			// 学生
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
+			break
+		}
+	case utils.TEACHER:
+		{
+			// 老师
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
+			break
+		}
+	case utils.TEACHER_HEAD:
+		{
+			// 系主任
+			studentId := this.GetString("studentId")
+			classId := this.GetString("classId")
+			if studentId == "" {
+				this.Data["json"] = utils.ErrorReJson("请输入要修改班级的学生学号")
+				break
+			}
+			err := models.UpdateStudentClass(studentId, classId)
+			if err != nil {
+				log.Error(err)
+				this.Data["json"] = utils.ErrorReJson(err.Error())
+				break
+			}
+			this.Data["json"] = utils.SuccessReJson(studentId)
+			break
+		}
+	default:
+		{
+			this.Data["json"] = utils.NoFoundReJson("未知用户...")
+		}
+	}
+	this.ServeJSON()
+}
+
 // GetStudentList Get获取学生列表
 func (this *StudentController) GetStudentList() {
 	// 获取token

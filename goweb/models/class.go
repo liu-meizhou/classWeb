@@ -58,6 +58,15 @@ func UpdateClass(class *ClassInfo) error {
 	return nil
 }
 
+func DeleteClass(class *ClassInfo) error {
+	_, err := orm.NewOrm().Delete(class)
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	return nil
+}
+
 func GetClassList() ([]*ClassInfo, error) {
 	var classes []*ClassInfo
 	o := orm.NewOrm()

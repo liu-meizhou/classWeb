@@ -317,7 +317,7 @@ func (this *CourseController) ChooseCourse() {
 					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break
 				}
-				err = models.GetChooseCourse(studentInfo, pageInfo, course)
+				err = models.GetChooseCourse(pageInfo, course)
 				if err != nil {
 					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break

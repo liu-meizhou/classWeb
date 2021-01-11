@@ -1,19 +1,26 @@
 <template>
   <el-table :data="courses" style="width: 100%">
     <el-table-column type="expand">
-      <template slot-scope="props">
+      <template slot-scope="{ row }">
         <el-form label-position="left" inline class="demo-table-expand">
           <el-form-item label="课程号">
-            <span>{{ props.row.id }}</span>
+            <span>{{ row.id }}</span>
           </el-form-item>
           <el-form-item label="课程名">
-            <span>{{ props.row.name }}</span>
+            <span>{{ row.name }}</span>
           </el-form-item>
-          <el-form-item label="成绩">
-            <span>{{ props.row.studentResult }}</span>
+          <el-form-item label="教课老师">
+            <span v-for="teacher in row.teachers" :key="teacher.id">{{ teacher.name }}、</span>
           </el-form-item>
-          <el-form-item label="绩点">
-            <span>{{ props.row.studentPoint }}</span>
+          <el-form-item label="学分">
+            <span>{{ row.score }}</span>
+          </el-form-item>
+          <el-form-item label="考核方式">
+            <span>{{ row.checkWay }}</span>
+          </el-form-item>
+          <el-form-item
+            label="选课人数"
+          ><span>{{ row.students.length }}</span>
           </el-form-item>
         </el-form>
       </template>
@@ -50,11 +57,21 @@
         </p>
       </template>
     </el-table-column>
+
+    <el-table-column align="center" label="课程班">
+      <template slot-scope="{ row }">
+        <p v-for="clazz in row.classes" :key="clazz.id">
+          <el-tag>{{ clazz.name }}</el-tag>
+        </p>
+      </template>
+    </el-table-column>
+
+    <el-table-column align="center" label="课程性质" prop="property" />
   </el-table>
 </template>
 
 <script>
-import { getCourse } from '@/api/user/index'
+import { getCourse } from '@/api/user/course'
 export default {
   data() {
     return {

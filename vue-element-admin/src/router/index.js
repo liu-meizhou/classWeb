@@ -88,9 +88,23 @@ export const asyncRoutes = [
     children: [
       {
         path: 'index',
-        component: () => import('@/views/my-courses/index'),
+        component: () => import('@/views/course-my/index'),
         name: 'my-courses',
         meta: { title: '我的课表', icon: 'el-icon-notebook-2', noCache: true }
+      }
+    ]
+  },
+
+  {
+    path: '/courseChoose',
+    component: Layout,
+    redirect: '/courseChoose/index',
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/course-choose/index'),
+        name: 'courseChoose',
+        meta: { title: '选课列表', icon: 'el-icon-circle-plus-outline', noCache: true }
       }
     ]
   },
@@ -132,7 +146,7 @@ export const asyncRoutes = [
         path: 'index',
         component: () => import('@/views/teacher/index'),
         name: 'teacher',
-        meta: { title: '老师查询', icon: 'user', noCache: true }
+        meta: { title: '老师查询', icon: 'el-icon-s-custom', noCache: true }
       }
     ]
   },
@@ -147,20 +161,6 @@ export const asyncRoutes = [
         component: () => import('@/views/course/index'),
         name: 'course',
         meta: { title: '课程查询', icon: 'education', noCache: true }
-      }
-    ]
-  },
-
-  {
-    path: '/courseChoose',
-    component: Layout,
-    redirect: '/courseChoose/index',
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/course-choose/index'),
-        name: 'courseChoose',
-        meta: { title: '选课查询', icon: 'el-icon-circle-plus-outline', noCache: true }
       }
     ]
   },
