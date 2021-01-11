@@ -25,6 +25,11 @@ token: {{token}}
 }
 
 ###
+# 查看班级信息列表
+GET {{path}}{{user-path}}/class/list
+token: {{token}}
+
+###
 # 获取某个班级的所选课程列表
 GET {{path}}{{user-path}}/class/course?classId=1
 token: {{token}}

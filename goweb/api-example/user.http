@@ -8,3 +8,8 @@ token: {{token}}
 # 注销
 GET {{path}}/user/v1/logout
 token: {{token}}
+
+> {%
+client.global.clear("token");
+client.global.clear("user");
+%}

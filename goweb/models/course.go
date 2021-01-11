@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 )
@@ -44,10 +45,39 @@ func ReadCourse(courseId string) (*CourseInfo, error) {
 
 func CreateCourse(course *CourseInfo) error {
 	o := orm.NewOrm()
-	_, err := o.Insert(course)
+	to, err := o.Begin()
 	if err != nil {
+		logs.Error("start the transaction failed")
+		return fmt.Errorf("start the transaction failed")
+	}
+	_, err = o.Insert(course)
+	if err != nil && err.Error() != "<Ormer> last insert id is unavailable" {
 		logs.Error(err)
+		errRollBack := to.Rollback()
+		if errRollBack != nil {
+			logs.Error("roll back transaction failed", errRollBack)
+			return errRollBack
+		}
 		return err
+	}
+	if course.CourseBases != nil && len(course.CourseBases) != 0 {
+		for _, base := range course.CourseBases {
+			base.Course = course
+			_, err = o.Insert(base)
+			if err != nil {
+				logs.Error(err)
+				errRollBack := to.Rollback()
+				if errRollBack != nil {
+					logs.Error("roll back transaction failed", errRollBack)
+					return errRollBack
+				}
+				return err
+			}
+		}
+	}
+	err = to.Commit()
+	if err != nil {
+		logs.Error("commit transaction failed.", err)
 	}
 	return nil
 }

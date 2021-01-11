@@ -138,7 +138,7 @@ export default {
         { name: '系主任', value: userTypes.TEACHER_HEAD }
       ],
       loginForm: {
-        loginId: '1865400006',
+        loginId: '1',
         password: '123456',
         userType: userTypes.STUDENT
       },

@@ -4,7 +4,7 @@
 POST {{path}}{{visitor-path}}/login
 
 {
-    "loginId":"1865400006",
+    "loginId":"1",
     "password":"123456",
     "userType":"2"
 }
@@ -19,7 +19,7 @@ client.global.set("user", response.body['data']['user']);
 POST {{path}}{{visitor-path}}/login
 
 {
-    "loginId":"111666",
+    "loginId":"2",
     "password":"123456",
     "userType":"3"
 }
@@ -34,7 +34,7 @@ client.global.set("user", response.body['data']['user']);
 POST {{path}}{{visitor-path}}/login
 
 {
-    "loginId":"100755",
+    "loginId":"1",
     "password":"123456",
     "userType":"4"
 }
@@ -49,7 +49,7 @@ client.global.set("user", response.body['data']['user']);
 POST {{path}}{{visitor-path}}/login
 
 {
-    "loginId":"1865400006",
+    "loginId":"2",
     "password":"123456", 
     "userType":"2" 
 }

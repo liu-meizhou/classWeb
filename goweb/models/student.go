@@ -43,10 +43,10 @@ import (
 //	o.LoadRelated(student.Courses[course], "CourseBases")
 //	o.LoadRelated(student.Courses[course], "Classes")
 //	o.LoadRelated(student.Courses[course], "Teachers")
-//	o.LoadRelated(student.Courses[course], "ClassGroups")
+//	o.LoadRelated(student.Courses[course], "CourseGroups")
 //}
 //return nil
-const canChooseCourse = "专业选修课程"
+const canChooseCourse = "选修"
 
 func ReadStudent(studentId string) (*StudentInfo, error) {
 	qb, err := orm.NewQueryBuilder("postgres")
@@ -81,7 +81,7 @@ func ReadStudent(studentId string) (*StudentInfo, error) {
 func CreateStudent(student *StudentInfo) error {
 	o := orm.NewOrm()
 	_, err := o.Insert(student)
-	if err != nil {
+	if err != nil && err.Error() != "<Ormer> last insert id is unavailable"  {
 		logs.Error(err)
 		return err
 	}
@@ -118,7 +118,7 @@ func GetStudentCourse(student *StudentInfo) error {
 		LeftJoin("course_class_rel").On("course_class_rel.course_id=course_info.course_id").
 		LeftJoin("class_info").On("class_info.class_id=course_class_rel.class_id").
 		LeftJoin("course_group_rel").On("course_group_rel.course_id=course_info.course_id").
-		LeftJoin("class_group_info").On("class_group_info.class_group_id=course_group_rel.class_group_id").
+		LeftJoin("course_group_info").On("course_group_info.course_group_id=course_group_rel.course_group_id").
 		InnerJoin("course_student_rel").On("course_info.course_id = course_student_rel.course_id").
 		Where("course_student_rel.student_id = ?")
 
@@ -155,7 +155,7 @@ func GetChooseCourse(student *StudentInfo, pageInfo *utils.PageInfo, course *Cou
 		//LeftJoin("course_class_rel").On("course_class_rel.course_id=course_info.course_id").
 		//LeftJoin("class_info").On("class_info.class_id=course_class_rel.class_id").
 		//LeftJoin("course_group_rel").On("course_group_rel.course_id=course_info.course_id").
-		//LeftJoin("class_group_info").On("class_group_info.class_group_id=course_group_rel.class_group_id").
+		//LeftJoin("course_group_info").On("course_group_info.course_group_id=course_group_rel.course_group_id").
 		LeftJoin("course_student_rel").On("course_info.course_id = course_student_rel.course_id").
 		Where("course_info.course_properties = ?")
 	var args []interface{}

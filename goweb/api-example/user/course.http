@@ -44,7 +44,7 @@ token: {{token}}
 
 ###
 # 学生进行选课
-GET {{path}}{{user-path}}/course/choose?courseId=1
+GET {{path}}{{user-path}}/course/choose?courseId=3
 token: {{token}}
 
 ###

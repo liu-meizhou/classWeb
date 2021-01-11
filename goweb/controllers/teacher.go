@@ -152,6 +152,56 @@ func (this *TeacherController) CreateTeacher() {
 	this.ServeJSON()
 }
 
+// GetTeachers 获取老师列表
+func (this *TeacherController) GetTeachers() {
+	// 获取token
+	token := this.Ctx.Input.Header("token")
+	// 从缓存获取当前登录用户
+	user := GetUser(token)
+	if user == nil {
+		this.Data["json"] = utils.NoIdentifyReJson("请登录...")
+		this.ServeJSON()
+		return
+	}
+	switch user.UserType {
+	case utils.ADMIN:
+		{
+			// admin
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
+			break
+		}
+	case utils.STUDENT:
+		{
+			// 学生
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
+			break
+		}
+	case utils.TEACHER:
+		{
+			// 老师
+			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
+			break
+		}
+	case utils.TEACHER_HEAD:
+		{
+			// 系主任
+			teachers, err := models.GetTeachers()
+			if err != nil {
+				log.Error(err)
+				this.Data["json"] = utils.ErrorReJson(err.Error())
+				break
+			}
+			this.Data["json"] = utils.SuccessReJson(teachers)
+			break
+		}
+	default:
+		{
+			this.Data["json"] = utils.NoFoundReJson("未知用户...")
+		}
+	}
+	this.ServeJSON()
+}
+
 // GetTeacher 获取老师详细信息
 func (this *TeacherController) GetTeacher() {
 	// 获取token

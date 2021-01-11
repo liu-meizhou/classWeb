@@ -41,7 +41,7 @@ func (this *CourseController) CourseInfo() {
 	case utils.TEACHER:
 		{
 			// 老师
-			this.Data["json"] = utils.NoFoundReJson("目前只有系主任可以使用该功能...")
+			this.Data["json"] = utils.SuccessReJson("目前只有系主任可以使用该功能...")
 			break
 		}
 	case utils.TEACHER_HEAD:
@@ -106,19 +106,19 @@ func (this *CourseController) CreateCourse() {
 	case utils.ADMIN:
 		{
 			// admin
-			this.Data["json"] = utils.NoFoundReJson("目前只有系主任可以使用该功能...")
+			this.Data["json"] = utils.SuccessReJson("目前只有系主任可以使用该功能...")
 			break
 		}
 	case utils.STUDENT:
 		{
 			// 学生
-			this.Data["json"] = utils.NoFoundReJson("目前只有系主任可以使用该功能...")
+			this.Data["json"] = utils.SuccessReJson("目前只有系主任可以使用该功能...")
 			break
 		}
 	case utils.TEACHER:
 		{
 			// 老师
-			this.Data["json"] = utils.NoFoundReJson("目前只有系主任可以使用该功能...")
+			this.Data["json"] = utils.SuccessReJson("目前只有系主任可以使用该功能...")
 			break
 		}
 	case utils.TEACHER_HEAD:
@@ -168,15 +168,21 @@ func (this *CourseController) GetCourse() {
 	case utils.ADMIN:
 		{
 			// admin
-			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
+			this.Data["json"] = utils.SuccessReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.STUDENT:
 		{
 			// 学生
 			studentInfo := user.User.(*models.StudentInfo)
-			if studentInfo.Courses == nil {
-				_ = models.GetStudentCourse(studentInfo)
+			//if studentInfo.Courses == nil {
+			//	_ = models.GetStudentCourse(studentInfo)
+			//}
+			err := models.GetStudentCourse(studentInfo)
+			if err != nil {
+				logs.Error(err)
+				this.Data["json"] = utils.ErrorReJson(err.Error())
+				break
 			}
 			this.Data["json"] = utils.SuccessReJson(studentInfo.Courses)
 			break
@@ -185,8 +191,14 @@ func (this *CourseController) GetCourse() {
 		{
 			// 老师
 			teacherInfo := user.User.(*models.TeacherInfo)
-			if teacherInfo.Courses == nil {
-				_ = models.GetTeacherCourse(teacherInfo)
+			//if teacherInfo.Courses == nil {
+			//	_ = models.GetTeacherCourse(teacherInfo)
+			//}
+			err := models.GetTeacherCourse(teacherInfo)
+			if err != nil {
+				logs.Error(err)
+				this.Data["json"] = utils.ErrorReJson(err.Error())
+				break
 			}
 			this.Data["json"] = utils.SuccessReJson(teacherInfo.Courses)
 			break
@@ -217,7 +229,7 @@ func (this *CourseController) GetCourse() {
 				this.Data["json"] = utils.ErrorReJson(err.Error())
 				break
 			}
-			this.Data["json"] = utils.SuccessReJson(teacher)
+			this.Data["json"] = utils.SuccessReJson(teacher.Courses)
 			break
 		}
 	default:
@@ -243,25 +255,25 @@ func (this *CourseController) ExportCourse() {
 	case utils.ADMIN:
 		{
 			// admin
-			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
+			this.Data["json"] = utils.SuccessReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.STUDENT:
 		{
 			// 学生
-			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
+			this.Data["json"] = utils.SuccessReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER:
 		{
 			// 老师
-			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
+			this.Data["json"] = utils.SuccessReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER_HEAD:
 		{
 			// 系主任
-			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
+			this.Data["json"] = utils.SuccessReJson("目前你不能使用该功能...")
 			break
 		}
 	default:
@@ -288,7 +300,7 @@ func (this *CourseController) ChooseCourse() {
 	case utils.ADMIN:
 		{
 			// admin
-			this.Data["json"] = utils.NoFoundReJson("你不是管理员...")
+			this.Data["json"] = utils.SuccessReJson("你不是管理员...")
 			break
 		}
 	case utils.STUDENT:
@@ -328,13 +340,13 @@ func (this *CourseController) ChooseCourse() {
 	case utils.TEACHER:
 		{
 			// 老师
-			this.Data["json"] = utils.NoFoundReJson("此功能老师暂无...")
+			this.Data["json"] = utils.SuccessReJson("此功能老师暂无...")
 			break
 		}
 	case utils.TEACHER_HEAD:
 		{
 			// 系主任
-			this.Data["json"] = utils.NoFoundReJson("此功能系主任暂无...")
+			this.Data["json"] = utils.SuccessReJson("此功能系主任暂无...")
 			break
 		}
 	default:
@@ -361,13 +373,13 @@ func (this *CourseController) CourseGrade() {
 	case utils.ADMIN:
 		{
 			// admin
-			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
+			this.Data["json"] = utils.SuccessReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.STUDENT:
 		{
 			// 学生
-			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
+			this.Data["json"] = utils.SuccessReJson("目前你不能使用该功能...")
 			break
 		}
 	case utils.TEACHER, utils.TEACHER_HEAD:

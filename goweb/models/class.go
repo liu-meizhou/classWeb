@@ -41,7 +41,7 @@ func ReadClass(classId string) (*ClassInfo, error) {
 func CreateClass(class *ClassInfo) error {
 	o := orm.NewOrm()
 	_, err := o.Insert(class)
-	if err != nil {
+	if err != nil && err.Error() != "<Ormer> last insert id is unavailable" {
 		logs.Error(err)
 		return err
 	}
@@ -56,6 +56,17 @@ func UpdateClass(class *ClassInfo) error {
 		return err
 	}
 	return nil
+}
+
+func GetClassList() ([]*ClassInfo, error) {
+	var classes []*ClassInfo
+	o := orm.NewOrm()
+	_, err := o.QueryTable("class_info").All(&classes)
+	if err != nil {
+		logs.Error(err)
+		return nil, err
+	}
+	return classes,nil
 }
 
 func GetClassCourse(class *ClassInfo) error {
@@ -111,20 +122,18 @@ func SetClassCourse(class *ClassInfo, course *CourseInfo) error {
 		return fmt.Errorf("该班级已经选过此课")
 	}
 	// 批量给学生选课
-	go func(){
-		qs := o.QueryTable("course_student_rel")
-		i, _ := qs.PrepareInsert()
-		for _, student := range students {
-			_, err = i.Insert(&CourseStudentRel{Course: course, Student: student})
-			if err != nil {
-				logs.Error(err)
-			}
-		}
-		err = i.Close() // 别忘记关闭 statement
+	qs := o.QueryTable("course_student_rel")
+	i, _ := qs.PrepareInsert()
+	for _, student := range students {
+		_, err = i.Insert(&CourseStudentRel{Course: course, Student: student})
 		if err != nil {
 			logs.Error(err)
 		}
-	}()
+	}
+	err = i.Close() // 别忘记关闭 statement
+	if err != nil {
+		logs.Error(err)
+	}
 	return nil
 }
 

@@ -20,3 +20,10 @@ func TestReadXls(t *testing.T) {
 		}
 	}
 }
+
+
+// TestGenData 生成数据
+func TestGenData(t *testing.T) {
+	GenTable()
+	GenData()
+}
