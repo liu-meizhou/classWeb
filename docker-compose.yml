@@ -4,17 +4,24 @@ services:
   goweb:
     build: ./goweb
     volumes:
-      - ./:/goweb
+      - ./goweb/:/goweb
     ports:
       - "8080:8080"
+
+  nginx-vue-admin:
+    build: ./vue-element-admin
+    volumes: 
+      - ./vue-element-admin/:/vue-admin
+    ports: 
+      - "9999:80"
 
   jenkins:
     image: jenkinsci/blueocean:latest
     user: root
     volumes:
-      - ~/jenkins_home/:/var/jenkins_home
+      - ~/jenkins_home/:/var/jenkins_home/
       - /var/run/docker.sock:/var/run/docker.sock
-      - ~/:/myhome
+      - ~/:/myhome/
       - ~/.ssh/:/root/.ssh/
       - /usr/local/bin/docker-compose:/usr/local/bin/docker-compose
     ports:
