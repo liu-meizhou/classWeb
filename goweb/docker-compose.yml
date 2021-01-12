@@ -14,7 +14,9 @@ services:
     volumes:
       - ~/jenkins_home/:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
-      - "$HOME":/home
+      - ~/:/myhome
+      - ~/.ssh/:/root/.ssh/
+      - /usr/local/bin/docker-compose:/usr/local/bin/docker-compose
     ports:
       - "8888:8080"
       - "50000:50000"
