@@ -48,6 +48,7 @@ func main() {
 
 	// 生成数据库
 	orm.Debug = true
+	logs.Info("测试自动化部署")
 
 	// 启动web
 	web.Run()
