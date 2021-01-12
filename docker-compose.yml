@@ -2,7 +2,7 @@ version: '3'
 services:
 
   goweb:
-    build: .
+    build: ./goweb
     volumes:
       - ./:/goweb
     ports:
