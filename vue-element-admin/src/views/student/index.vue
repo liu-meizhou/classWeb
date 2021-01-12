@@ -3,12 +3,6 @@
     <el-table-column type="expand">
       <template slot-scope="props">
         <el-form label-position="left" inline class="demo-table-expand">
-          <el-form-item label="学生学号">
-            <span>{{ props.row.id }}</span>
-          </el-form-item>
-          <el-form-item label="姓名">
-            <span>{{ props.row.name }}</span>
-          </el-form-item>
           <el-form-item label="成绩">
             <span>{{ props.row.courseResult }}</span>
           </el-form-item>
@@ -18,33 +12,30 @@
         </el-form>
       </template>
     </el-table-column>
+    <el-table-column align="center" label="学号" prop="id" />
     <el-table-column align="center" label="姓名" prop="name" />
+    <el-table-column align="center" label="性别" prop="sex" />
     <el-table-column align="center" label="班级" prop="class.name" />
-    <el-table-column align="center" label="成绩">
-      <template slot-scope="{ row }">
-        <template v-if="row.edit">
-          <el-input v-model="row.courseResult" class="edit-input" size="small" />
-          <el-button
-            class="cancel-btn"
-            size="small"
-            icon="el-icon-refresh"
-            type="warning"
-            @click="cancelEdit(row)"
-          >
-            cancel
-          </el-button>
-        </template>
-        <el-button v-else type="text" @click="row.edit=!row.edit">{{
-          row.courseResult
-        }}</el-button>
+    <el-table-column align="center" label="学院" prop="college" />
+    <el-table-column label="操作">
+      <template slot-scope="scope">
+        <el-button
+          size="mini"
+          @click="handleEditStudent(scope.$index, scope.row)"
+        >编辑</el-button>
+        <el-button
+          size="mini"
+          type="danger"
+          @click="handleDeleteStudent(scope.$index, scope.row)"
+        >删除</el-button>
       </template>
     </el-table-column>
-    <el-table-column align="center" label="绩点" prop="coursePoint" />
   </el-table>
 </template>
 
 <script>
 import { getStudent } from '@/api/user/course'
+import { getStudentList } from '@/api/user/student'
 export default {
   data() {
     return {
@@ -53,11 +44,23 @@ export default {
   },
   created() {
     const query = this.$route.query
-    if (query) {
+    if (query.courseId) {
       this.getStudent(query.courseId)
+    } else {
+      this.getAllStudent()
     }
   },
   methods: {
+    getAllStudent() {
+      getStudentList()
+        .then(pageInfo => {
+          this.students = pageInfo.lists
+          console.log(this.students)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
     getStudent(courseId) {
       getStudent(courseId)
         .then(students => {

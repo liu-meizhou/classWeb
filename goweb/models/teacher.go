@@ -61,7 +61,13 @@ func UpdateTeacher(teacher *TeacherInfo) error {
 	return nil
 }
 
-func DeleteTeacher(student *TeacherInfo)  {
+func DeleteTeacher(teacher *TeacherInfo) error {
+	_, err := orm.NewOrm().Delete(teacher)
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	return nil
 }
 
 func GetTeachers() ([]*TeacherInfo, error) {
@@ -233,6 +239,31 @@ func TeacherChooseCourse(rel *CourseTeacherRel) error {
 	}
 	rel.CourseTeacherRelId = int(id)
 	rel.Course = course
+	return nil
+}
+
+func GetTeacherList(pageInfo *utils.PageInfo, teacher *StudentInfo) error {
+	qb, err := orm.NewQueryBuilder("postgres")
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+
+	// 构建查询对象
+	qb.Select(GetTeacherColumn()).
+		From("teacher_info")
+
+	// 导出 SQL 语句
+	sql := qb.String()
+
+	o := orm.NewOrm()
+	var teachers []*TeacherInfo
+	_, err = o.Raw(sql).QueryRows(&teachers)
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	pageInfo.Lists = teachers
 	return nil
 }
 

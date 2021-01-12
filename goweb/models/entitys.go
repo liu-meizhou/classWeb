@@ -25,7 +25,7 @@ type StudentInfo struct {
 	StudentName        string        `json:"name" orm:"size(50)" form:"name"`                                          // 学生名字
 	StudentSex         string        `json:"sex" orm:"size(10)" form:"sex"`                                            // 学生性别
 	StudentCollege     string        `json:"college" orm:"size(50)" form:"college"`                                    // 学生所在学院
-	StudentAllPoint    float64       `json:"allPoint" orm:"default(0);digits(4);decimals(2)"`                                  // 学生总绩点
+	StudentAllPoint    float64       `json:"allPoint" orm:"default(0);digits(4);decimals(2)"`                          // 学生总绩点
 	StudentResults     float64       `json:"grade" orm:"-"`                                                            // 课程成绩
 	StudentPoint       float64       `json:"point" orm:"-"`                                                            // 课程绩点
 	StudentBirth       time.Time     `json:"birth" orm:"auto_now;type(datetime)" form:"birth"`                         // 学生出生日期

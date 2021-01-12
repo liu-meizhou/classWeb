@@ -3,6 +3,7 @@ package models
 import (
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
+	"goweb/utils"
 )
 
 //sql := `select * from course_info where course_id in
@@ -96,7 +97,13 @@ func UpdateStudent(student *StudentInfo) error {
 	return nil
 }
 
-func DeleteStudent(student *StudentInfo)  {
+func DeleteStudent(student *StudentInfo) error {
+	_, err := orm.NewOrm().Delete(student)
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	return nil
 }
 
 func UpdateStudentClass(studentId, classId string) error {
@@ -146,5 +153,34 @@ func GetStudentCourse(student *StudentInfo) error {
 
 	courses := ParseCourses(maps)
 	student.Courses = courses
+	return nil
+}
+
+func GetStudentList(pageInfo *utils.PageInfo, student *StudentInfo) error {
+	qb, err := orm.NewQueryBuilder("postgres")
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+
+	// 构建查询对象
+	qb.Select(GetStudentColumn(), GetClassColumn()).
+		From("student_info").
+		LeftJoin("class_info").On("student_info.class_id=class_info.class_id")
+
+	// 导出 SQL 语句
+	sql := qb.String()
+
+	o := orm.NewOrm()
+	var maps []orm.Params
+	num, err := o.Raw(sql).Values(&maps)
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	logs.Info(num)
+
+	students := ParseStudents(maps)
+	pageInfo.Lists = students
 	return nil
 }

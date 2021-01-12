@@ -93,6 +93,15 @@ func UpdateCourse(course *CourseInfo) error {
 	return nil
 }
 
+func DeleteCourse(course *CourseInfo) error {
+	_, err := orm.NewOrm().Delete(course)
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	return nil
+}
+
 func GetCourseClass(course *CourseInfo) error {
 	o := orm.NewOrm()
 	_, err := o.LoadRelated(course, "Classes")

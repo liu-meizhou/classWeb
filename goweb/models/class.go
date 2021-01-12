@@ -154,7 +154,7 @@ func GetClassStudentSort(class *ClassInfo) error {
 	}
 
 	// 构建查询对象
-	qb.Select(GetStudentColumn()).
+	qb.Select(GetStudentColumn(), GetClassColumn()).
 		From("student_info").
 		LeftJoin("class_info").On("student_info.class_id=class_info.class_id").
 		Where("class_info.class_id = ?").

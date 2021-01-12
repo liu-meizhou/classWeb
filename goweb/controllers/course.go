@@ -3,7 +3,6 @@ package controllers
 import (
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
-	"github.com/prometheus/common/log"
 	"goweb/models"
 	"goweb/utils"
 )
@@ -55,7 +54,7 @@ func (this *CourseController) CourseInfo() {
 				}
 				course, err := models.ReadCourse(courseId)
 				if err != nil {
-					log.Error(err)
+					logs.Error(err)
 					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break
 				}
@@ -64,7 +63,7 @@ func (this *CourseController) CourseInfo() {
 				course := new(models.CourseInfo)
 				err := utils.ParseBody(&this.Controller, course)
 				if err != nil {
-					log.Error(err)
+					logs.Error(err)
 					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break
 				}
@@ -75,7 +74,7 @@ func (this *CourseController) CourseInfo() {
 				// 修改学生
 				err = models.UpdateCourse(course)
 				if err != nil {
-					log.Error(err)
+					logs.Error(err)
 					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break
 				}
@@ -127,7 +126,7 @@ func (this *CourseController) CreateCourse() {
 			course := new(models.CourseInfo)
 			err := utils.ParseBody(&this.Controller, course)
 			if err != nil {
-				log.Error(err)
+				logs.Error(err)
 				this.Data["json"] = utils.ErrorReJson(err.Error())
 				break
 			}
@@ -137,7 +136,7 @@ func (this *CourseController) CreateCourse() {
 			}
 			err = models.CreateCourse(course)
 			if err != nil {
-				log.Error(err)
+				logs.Error(err)
 				this.Data["json"] = utils.ErrorReJson(err.Error())
 				break
 			}

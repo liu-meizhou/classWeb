@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
-	"github.com/prometheus/common/log"
 	"goweb/models"
 	"goweb/utils"
 )
@@ -55,7 +55,7 @@ func (this *TeacherController) TeacherInfo() {
 				}
 				teacher, err := models.ReadTeacher(teacherId)
 				if err != nil {
-					log.Error(err)
+					logs.Error(err)
 					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break
 				}
@@ -64,7 +64,7 @@ func (this *TeacherController) TeacherInfo() {
 				teacher := new(models.TeacherInfo)
 				err := utils.ParseBody(&this.Controller, teacher)
 				if err != nil {
-					log.Error(err)
+					logs.Error(err)
 					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break
 				}
@@ -75,7 +75,7 @@ func (this *TeacherController) TeacherInfo() {
 				// 修改老师
 				err = models.UpdateTeacher(teacher)
 				if err != nil {
-					log.Error(err)
+					logs.Error(err)
 					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break
 				}
@@ -127,7 +127,7 @@ func (this *TeacherController) CreateTeacher() {
 			teacher := new(models.TeacherInfo)
 			err := utils.ParseBody(&this.Controller, teacher)
 			if err != nil {
-				log.Error(err)
+				logs.Error(err)
 				this.Data["json"] = utils.ErrorReJson(err.Error())
 				break
 			}
@@ -137,11 +137,66 @@ func (this *TeacherController) CreateTeacher() {
 			}
 			err = models.CreateTeacher(teacher)
 			if err != nil {
-				log.Error(err)
+				logs.Error(err)
 				this.Data["json"] = utils.ErrorReJson(err.Error())
 				break
 			}
 			this.Data["json"] = utils.SuccessReJson(teacher)
+			break
+		}
+	default:
+		{
+			this.Data["json"] = utils.NoFoundReJson("未知用户...")
+		}
+	}
+	this.ServeJSON()
+}
+
+// DeleteTeacher Get请求删除一个老师
+func (this *TeacherController) DeleteTeacher() {
+	// 获取token
+	token := this.Ctx.Input.Header("token")
+	// 从缓存获取当前登录用户
+	user := GetUser(token)
+	if user == nil {
+		this.Data["json"] = utils.NoIdentifyReJson("请登录...")
+		this.ServeJSON()
+		return
+	}
+	switch user.UserType {
+	case utils.ADMIN:
+		{
+			// admin
+			this.Data["json"] = utils.SuccessReJson("目前你不能使用该功能...")
+			break
+		}
+	case utils.STUDENT:
+		{
+			// 学生
+			this.Data["json"] = utils.SuccessReJson("目前你不能使用该功能...")
+			break
+		}
+	case utils.TEACHER:
+		{
+			// 老师
+			this.Data["json"] = utils.SuccessReJson("目前你不能使用该功能...")
+			break
+		}
+	case utils.TEACHER_HEAD:
+		{
+			// 系主任
+			teacherId := this.GetString("teacherId")
+			if teacherId == "" {
+				this.Data["json"] = utils.ErrorReJson("请输入教师号")
+				break
+			}
+			err := models.DeleteTeacher(&models.TeacherInfo{TeacherId: teacherId})
+			if err != nil {
+				logs.Error(err)
+				this.Data["json"] = utils.ErrorReJson(err.Error())
+				break
+			}
+			this.Data["json"] = utils.SuccessReJson(teacherId)
 			break
 		}
 	default:
@@ -187,7 +242,7 @@ func (this *TeacherController) GetTeachers() {
 			// 系主任
 			teachers, err := models.GetTeachers()
 			if err != nil {
-				log.Error(err)
+				logs.Error(err)
 				this.Data["json"] = utils.ErrorReJson(err.Error())
 				break
 			}

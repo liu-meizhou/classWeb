@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
-	"github.com/prometheus/common/log"
 	"goweb/models"
 	"goweb/utils"
 )
@@ -54,7 +54,7 @@ func (this *StudentController) StudentInfo() {
 				}
 				student, err := models.ReadStudent(studentId)
 				if err != nil {
-					log.Error(err)
+					logs.Error(err)
 					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break
 				}
@@ -63,7 +63,7 @@ func (this *StudentController) StudentInfo() {
 				student := new(models.StudentInfo)
 				err := utils.ParseBody(&this.Controller, student)
 				if err != nil {
-					log.Error(err)
+					logs.Error(err)
 					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break
 				}
@@ -74,7 +74,7 @@ func (this *StudentController) StudentInfo() {
 				// 修改学生
 				err = models.UpdateStudent(student)
 				if err != nil {
-					log.Error(err)
+					logs.Error(err)
 					this.Data["json"] = utils.ErrorReJson(err.Error())
 					break
 				}
@@ -126,7 +126,7 @@ func (this *StudentController) CreateStudent() {
 			student := new(models.StudentInfo)
 			err := utils.ParseBody(&this.Controller, student)
 			if err != nil {
-				log.Error(err)
+				logs.Error(err)
 				this.Data["json"] = utils.ErrorReJson(err.Error())
 				break
 			}
@@ -136,11 +136,66 @@ func (this *StudentController) CreateStudent() {
 			}
 			err = models.CreateStudent(student)
 			if err != nil {
-				log.Error(err)
+				logs.Error(err)
 				this.Data["json"] = utils.ErrorReJson(err.Error())
 				break
 			}
 			this.Data["json"] = utils.SuccessReJson(student)
+			break
+		}
+	default:
+		{
+			this.Data["json"] = utils.NoFoundReJson("未知用户...")
+		}
+	}
+	this.ServeJSON()
+}
+
+// DeleteStudent Get请求删除一个学生
+func (this *StudentController) DeleteStudent() {
+	// 获取token
+	token := this.Ctx.Input.Header("token")
+	// 从缓存获取当前登录用户
+	user := GetUser(token)
+	if user == nil {
+		this.Data["json"] = utils.NoIdentifyReJson("请登录...")
+		this.ServeJSON()
+		return
+	}
+	switch user.UserType {
+	case utils.ADMIN:
+		{
+			// admin
+			this.Data["json"] = utils.SuccessReJson("目前你不能使用该功能...")
+			break
+		}
+	case utils.STUDENT:
+		{
+			// 学生
+			this.Data["json"] = utils.SuccessReJson("目前你不能使用该功能...")
+			break
+		}
+	case utils.TEACHER:
+		{
+			// 老师
+			this.Data["json"] = utils.SuccessReJson("目前你不能使用该功能...")
+			break
+		}
+	case utils.TEACHER_HEAD:
+		{
+			// 系主任
+			studentId := this.GetString("studentId")
+			if studentId == "" {
+				this.Data["json"] = utils.ErrorReJson("请输入学生学号")
+				break
+			}
+			err := models.DeleteStudent(&models.StudentInfo{StudentId: studentId})
+			if err != nil {
+				logs.Error(err)
+				this.Data["json"] = utils.ErrorReJson(err.Error())
+				break
+			}
+			this.Data["json"] = utils.SuccessReJson(studentId)
 			break
 		}
 	default:
@@ -192,7 +247,7 @@ func (this *StudentController) EditClass() {
 			}
 			err := models.UpdateStudentClass(studentId, classId)
 			if err != nil {
-				log.Error(err)
+				logs.Error(err)
 				this.Data["json"] = utils.ErrorReJson(err.Error())
 				break
 			}
@@ -240,7 +295,21 @@ func (this *StudentController) GetStudentList() {
 	case utils.TEACHER_HEAD:
 		{
 			// 系主任
-			this.Data["json"] = utils.NoFoundReJson("目前你不能使用该功能...")
+			// 解析查询条件
+			pageInfo := new(utils.PageInfo)
+			student := new(models.StudentInfo)
+			err := utils.ParsePageInfo(&this.Controller, pageInfo, student)
+			if err != nil {
+				logs.Error(err)
+				this.Data["json"] = utils.ErrorReJson(err.Error())
+				break
+			}
+			err = models.GetStudentList(pageInfo, student)
+			if err != nil {
+				this.Data["json"] = utils.ErrorReJson(err.Error())
+				break
+			}
+			this.Data["json"] = utils.SuccessReJson(pageInfo)
 			break
 		}
 	default:

@@ -10,3 +10,10 @@ export function editStudentClass(studentId, classId) {
     }
   })
 }
+
+export function getStudentList() {
+  return request({
+    url: '/user/v1/student/list',
+    method: 'post'
+  })
+}
