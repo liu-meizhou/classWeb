@@ -1,0 +1,21 @@
+version: '3'
+services:
+
+  goweb:
+    build: .
+    volumes:
+      - ./:/goweb
+    ports:
+      - "8080:8080"
+
+  jenkins:
+    image: jenkinsci/blueocean:latest
+    security_opt:
+      - label:user:root
+    volumes:
+      - ~/jenkins_home/:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8888:8080"
+      - "50000:50000"
+        
