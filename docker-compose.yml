@@ -12,7 +12,7 @@ services:
     restart: always
     working_dir: /go_web
     volumes: 
-      - ${TARGET_PATH}/${GO_WEB_SOURCE_PATH}:/go_web
+      - ./goweb:/go_web
     environment: 
       - TZ=${SERVICE_AREA}
     networks: 
@@ -40,7 +40,7 @@ services:
       - class_web_net
     working_dir: /vue-admin
     volumes: 
-      - ${TARGET_PATH}/${VUE_ADMIN_SOURCE_PATH}:/vue-admin
+      - ./vue-element-admin:/vue-admin
     command: 
       - sh
       - -c
@@ -54,8 +54,7 @@ services:
     container_name: vue_admin_nginx
     restart: always
     volumes: 
-      - ${TARGET_PATH}/${VUE_ADMIN_SOURCE_PATH}/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ${TARGET_PATH}/${VUE_ADMIN_SOURCE_PATH}/dist/:/usr/share/nginx/html/
+      - ./vue-element-admin:/vue-admin
     environment: 
       - TZ=${SERVICE_AREA}
     networks: 
@@ -66,8 +65,10 @@ services:
       - sh
       - -c
       - |
-        ./is_vue_env_ok.sh
-        nginx -g daemon off;
+        sh /vue-admin/is_vue_env_ok.sh
+        cp /vue-admin/nginx.conf /etc/nginx/conf.d/default.conf
+        cp -r /vue-admin/dist/* /usr/share/nginx/html
+        nginx -g "daemon off;"
         
   # 数据库
   postgresql:
@@ -84,7 +85,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
     volumes:
-      - ${TARGET_PATH}/${POSTGRES_SOURCE_PATH}:/var/lib/postgresql/data
+      - ${POSTGRES_SOURCE_PATH}:/var/lib/postgresql/data
 
   # 自动化部署
   jenkins:
@@ -94,7 +95,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${JENKINS_HOME}:/var/jenkins_home/
-      - ${SOURCE_PATH}:${JENKINS_TARGET_PATH}
+      - ${JENKINS_SOURCE_PATH}:${JENKINS_TARGET_PATH}
       - ${GIT_SSH_PATH}:/${JENKINS_USER}/.ssh/
       - ${DOCKER_COMPOSE_PATH}:/usr/local/bin/docker-compose
       - ${DOCKER_PATH}:/usr/bin/docker

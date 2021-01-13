@@ -76,7 +76,7 @@ func init() {
 				if token == "MrLiu" {
 					return true
 				}
-				token = ctx.Input.Param("token")
+				token = ctx.Input.Query("token")
 				if token == "MrLiu" {
 					return true
 				}
