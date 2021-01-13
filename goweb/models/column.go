@@ -80,26 +80,26 @@ func GetCourseStudentRelColumn() string {
 }
 
 func GetCourseGroupTeacherRelColumn() string {
-	return `course_group_teacher_rel.course_group_teacher_id",
+	return `course_group_teacher_rel.course_group_teacher_rel_id",
 "course_group_teacher_rel.course_group_id",
 "course_group_teacher_rel.teacher_id",
 "course_group_teacher_rel.is_charge`
 }
 
 func GetCourseClassRelColumn() string {
-	return `course_class_rel.course_class_id",
+	return `course_class_rel.course_class_rel_id",
 "course_class_rel.course_id",
 "course_class_rel.class_id`
 }
 
 func GetCourseTeacherRelColumn() string {
-	return `course_teacher_rel.course_teacher_id",
+	return `course_teacher_rel.course_teacher_rel_id",
 "course_teacher_rel.course_id",
 "course_teacher_rel.teacher_id`
 }
 
 func GetCourseGroupRelColumn() string {
-	return `course_group_rel.course_group_id",
+	return `course_group_rel.course_group_rel_id",
 "course_group_rel.course_id",
 "course_group_rel.course_group_id`
 }
