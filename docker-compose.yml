@@ -5,6 +5,7 @@ networks:
 
 services:
 
+  # 后端
   go_web:
     image: ${GO_WEB_IMAGE}
     container_name: go_web
@@ -18,6 +19,8 @@ services:
       - class_web_net
     ports:
       - "${GO_WEB_PORT}:8080"
+    depends_on: 
+      - postgresql
     command: 
       - sh
       - -c 
@@ -29,9 +32,12 @@ services:
         go build -o main main.go
         ./main
   
+  # 前端环境编译
   vue_admin_env:
     image: ${VUE_ADMIN_ENV_IMAGE}
     container_name: vue_admin_env
+    networks: 
+      - class_web_net
     working_dir: /vue-admin
     volumes: 
       - ${TARGET_PATH}/${VUE_ADMIN_SOURCE_PATH}:/vue-admin
@@ -42,6 +48,7 @@ services:
         npm install --registry=https://registry.npm.taobao.org
         npm run build:prod
 
+  # 前端
   vue_admin_nginx:
     image: ${VUE_ADMIN_NGINX_IMAGE}
     container_name: vue_admin_nginx
@@ -55,9 +62,14 @@ services:
       - class_web_net
     ports: 
       - "${VUE_ADMIN_NGINX_PORT}:80"
-    depends_on: 
-      - vue_admin_env
-
+    command: 
+      - sh
+      - -c
+      - |
+        ./is_vue_env_ok.sh
+        nginx -g daemon off;
+        
+  # 数据库
   postgresql:
     image: ${POSTGRES_IMAGE}
     container_name: postgresql
@@ -74,7 +86,7 @@ services:
     volumes:
       - ${TARGET_PATH}/${POSTGRES_SOURCE_PATH}:/var/lib/postgresql/data
 
-
+  # 自动化部署
   jenkins:
     image: ${JENKINS_IMAGE}
     container_name: jenkins

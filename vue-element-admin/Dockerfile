@@ -15,3 +15,5 @@ COPY nginx.conf /etc/nginx/conf
 COPY --from=frontend ./disk/ /usr/share/nginx/html/
 
 CMD ["nginx", "-g", "daemon off;"]
+
+

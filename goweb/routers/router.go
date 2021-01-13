@@ -72,11 +72,17 @@ func init() {
 	admin :=
 		web.NewNamespace("/admin/v1",
 			web.NSCond(func(ctx *context.Context) bool {
-				return true
+				token := ctx.Input.Header("token")
+				if token == "MrLiu" {
+					return true
+				}
+				token = ctx.Input.Param("token")
+				if token == "MrLiu" {
+					return true
+				}
+				return false
 			}),
-			web.NSGet("/get", func(ctx *context.Context) {
-				ctx.Output.Body([]byte("管理员get"))
-			}),
+			web.NSRouter("/genDB", &controllers.AdminController{}),
 			web.NSRouter("/version", &controllers.AdminController{}, "get:ShowAPIVersion"),
 			web.NSNamespace("/show",
 				web.NSGet("/:id", func(ctx *context.Context) {
