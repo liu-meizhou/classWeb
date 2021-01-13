@@ -58,7 +58,7 @@
 
 ### 部署
 
-- 一键部署： `docker-compose -d up`
+- start.sh 一键部署 （命令部署： `docker-compose -d up`）
 
-
+- auto_start.sh 自动化部署
 
