@@ -38,7 +38,7 @@ module.exports = {
     },
     proxy: {
       [process.env.VUE_APP_GO_API]: {
-        target: 'http://192.168.1.108:8080',
+        target: 'http://localhost:8080',
         pathRewrite: {
           ['^' + process.env.VUE_APP_GO_API]: ''
         }
