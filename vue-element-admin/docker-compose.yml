@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  # 前端
+  vue_admin_nginx:
+    build: .
+    container_name: vue_admin_nginx
+    working_dir: /vue-admin
+    volumes: 
+      - ./:/vue-admin
+    environment: 
+      - TZ=Asia/Shanghai
+    ports: 
+      - "9999:80"
+      

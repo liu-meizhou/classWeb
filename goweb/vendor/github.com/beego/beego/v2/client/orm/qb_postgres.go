@@ -29,13 +29,6 @@ func (qb *PostgresQueryBuilder) Select(fields ...string) QueryBuilder {
 		str = "*"
 	} else {
 		for i := 0; i < n; i++ {
-			if fields[i] == "" {
-				if i == n-1 {
-					str = strings.TrimRight(str, ",")
-				}
-				continue
-			}
-
 			sli := strings.Split(fields[i], ".")
 			s := strings.Join(sli, `"."`)
 			s = fmt.Sprintf("%s%s%s", quote, s, quote)

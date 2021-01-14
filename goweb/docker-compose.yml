@@ -1,0 +1,12 @@
+version: '3'
+services:
+  go_web:
+    build: .
+    container_name: go_web
+    working_dir: /go_web
+    volumes: 
+      - ./:/go_web
+    environment: 
+      - TZ=Asia/Shanghai
+    ports:
+      - "8080:8080"

@@ -17,3 +17,9 @@ COPY --from=frontend dist/* /usr/share/nginx/html
 
 CMD ["nginx", "-g", "daemon off;"]
 
+# 如docker启动
+# docker build -t vue_admin_nginx .
+# docker run -d -p 9999:80 -e TZ=Asia/Shanghai --name vue_admin_nginx vue_admin_nginx
+
+# 用docker-compose启动
+# docker-compose up -d

@@ -10,3 +10,10 @@ RUN go env -w GO111MODULE=on \
 # COPY . .
 
 CMD go build -o main main.go && ./main
+
+# 如docker启动
+# docker build -t goweb .
+# docker run -d -p 8080:8080 -v ~/project/classWeb/goweb:/goweb -e TZ=Asia/Shanghai --name go_web goweb
+
+# 用docker-compose启动
+# docker-compose up -d
