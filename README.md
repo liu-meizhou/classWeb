@@ -70,14 +70,18 @@
   5. 等待一段时间，可以用`docker logs xxx`查看是否启动完成
   6. 当后端`go_web`启动完成 在本机浏览器访问 `http://localhost:8080/admin/v1/genDB?token=MrLiu`即可初始化数据库
   7. 当前端`vue_admin_nginx`启动完成 在本机浏览器访问 `http://localhost:9999` 即可到主界面
+- 命令更新:
+  - 更新前端：`docker-compose up -d vue_admin_nginx` 或者 `docker-compose restart vue_admin_env vue_admin_nginx`
+  - 更新后端：`docker-compose restart go_web`  或者  `docker restart go_web`
+  - 更新数据库：`docker-compose restart postgresql` 或者  `docker restart postgresql`
 
-### 自动化部署
+#### 自动化部署
 
 - Jenkins
 - Github Action
 - Drone(需要有一个外网地址，如没有可以使用Gogs自建参考)
 
-### Jenkins自动化部署
+##### Jenkins自动化部署
 
 - 条件
   - 电脑需要安装git、docker、docker-compose
@@ -89,7 +93,10 @@
 - 步骤
   1. `git clone https://github.com/liu-meizhou/classWeb.git`
   2. 在浏览器打开[Jenkins](http://localhost:8888/)页面 -> 登录 -> 打开[blue ocean](http://localhost:8888/blue/organizations/jenkins/pipelines) -> 选择git[创建pipeline](http://localhost:8888/blue/organizations/jenkins/create-pipeline) ->
-  3. 
+
+##### Github Action
+
+
 
 
 
