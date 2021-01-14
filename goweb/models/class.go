@@ -14,7 +14,7 @@ func ReadClass(classId string) (*ClassInfo, error) {
 	}
 
 	// 构建查询对象
-	qb.Select(GetClassColumn(), GetTeacherColumn(), GetCourseClassRelColumn(),
+	qb.Select(GetClassColumn(), GetTeacherColumn(), GetCourseClassRelColumn(false, false),
 		GetCourseColumn(), GetStudentColumn()).
 		From("class_info").
 		LeftJoin("teacher_info").On("class_info.teacher_id=teacher_info.teacher_id").

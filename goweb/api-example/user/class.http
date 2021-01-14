@@ -1,7 +1,7 @@
 
 ###
 # 查看班级信息
-GET {{path}}{{user-path}}/class/info?classId=1
+GET {{path}}{{user-path}}/class/info?classId=2
 token: {{token}}
 
 ###

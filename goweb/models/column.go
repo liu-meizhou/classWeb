@@ -71,35 +71,70 @@ func GetCourseGroupColumn() string {
 "course_group_info.course_group_updated_time`
 }
 
-func GetCourseStudentRelColumn() string {
-	return `course_student_rel.course_student_rel_id",
-"course_student_rel.student_id",
-"course_student_rel.course_id",
-"course_student_rel.student_results",
+func GetCourseStudentRelColumn(isCourse, isStudent bool) string {
+	str := `course_student_rel.course_student_rel_id",`
+	if isCourse {
+		str += `"course_student_rel.course_id",`
+	}
+	if isStudent {
+		str += `"course_student_rel.student_id",`
+	}
+	return str + `"course_student_rel.student_results",
 "course_student_rel.student_point`
 }
 
-func GetCourseGroupTeacherRelColumn() string {
-	return `course_group_teacher_rel.course_group_teacher_rel_id",
-"course_group_teacher_rel.course_group_id",
-"course_group_teacher_rel.teacher_id",
-"course_group_teacher_rel.is_charge`
+func GetCourseGroupTeacherRelColumn(isCourseGroup, isTeacher bool) string {
+	str := `course_group_teacher_rel.course_group_teacher_rel_id",`
+	if isCourseGroup {
+		str += `"course_group_teacher_rel.course_group_id",`
+	}
+	if isTeacher {
+		str += `"course_group_teacher_rel.teacher_id",`
+	}
+	return str + `"course_group_teacher_rel.is_charge`
 }
 
-func GetCourseClassRelColumn() string {
-	return `course_class_rel.course_class_rel_id",
+func GetCourseClassRelColumn(isCourse, isClass bool) string {
+	if isCourse && isClass {
+		return `course_class_rel.course_class_rel_id",
 "course_class_rel.course_id",
 "course_class_rel.class_id`
+	} else if isCourse {
+		return `course_class_rel.course_class_rel_id",
+"course_class_rel.course_id`
+	} else if isClass {
+		return `course_class_rel.course_class_rel_id",
+"course_class_rel.class_id`
+	}
+	return `course_class_rel.course_class_rel_id`
 }
 
-func GetCourseTeacherRelColumn() string {
-	return `course_teacher_rel.course_teacher_rel_id",
+func GetCourseTeacherRelColumn(isCourse, isTeacher bool) string {
+	if isCourse && isTeacher {
+		return `course_teacher_rel.course_teacher_rel_id",
 "course_teacher_rel.course_id",
 "course_teacher_rel.teacher_id`
+	} else if isCourse {
+		return `course_teacher_rel.course_teacher_rel_id",
+"course_teacher_rel.course_id`
+	} else if isTeacher {
+		return `course_teacher_rel.course_teacher_rel_id",
+"course_teacher_rel.teacher_id`
+	}
+	return `course_teacher_rel.course_teacher_rel_id`
 }
 
-func GetCourseGroupRelColumn() string {
-	return `course_group_rel.course_group_rel_id",
+func GetCourseGroupRelColumn(isCourse, isCourseGroup bool) string {
+	if isCourse && isCourseGroup {
+		return `course_group_rel.course_group_rel_id",
 "course_group_rel.course_id",
 "course_group_rel.course_group_id`
+	} else if isCourse {
+		return `course_group_rel.course_group_rel_id",
+"course_group_rel.course_id`
+	} else if isCourseGroup {
+		return `course_group_rel.course_group_rel_id",
+"course_group_rel.course_group_id`
+	}
+	return `course_group_rel.course_group_rel_id`
 }

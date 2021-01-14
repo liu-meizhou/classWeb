@@ -15,8 +15,10 @@ func ReadCourse(courseId string) (*CourseInfo, error) {
 	}
 
 	// 构建查询对象
-	qb.Select(GetCourseColumn(), GetCourseBaseColumn(), GetCourseTeacherRelColumn(), GetTeacherColumn(), GetCourseClassRelColumn(),
-		GetClassColumn(), GetCourseGroupRelColumn(), GetCourseGroupColumn(), GetCourseStudentRelColumn(), GetStudentColumn()).
+	qb.Select(GetCourseColumn(), GetCourseBaseColumn(), GetCourseTeacherRelColumn(false, false),
+		GetTeacherColumn(), GetCourseClassRelColumn(false, false),
+		GetClassColumn(), GetCourseGroupRelColumn(false, false), GetCourseGroupColumn(),
+		GetCourseStudentRelColumn(false, false), GetStudentColumn()).
 		From("course_info").
 		LeftJoin("course_base_info").On("course_base_info.course_id=course_info.course_id").
 		LeftJoin("course_teacher_rel").On("course_teacher_rel.course_id=course_info.course_id").
@@ -119,8 +121,8 @@ func GetChooseCourse(pageInfo *utils.PageInfo, course *CourseInfo) error {
 		return err
 	}
 	// 构建查询对象
-	qb.Select(GetCourseColumn(), GetCourseBaseColumn(), GetCourseTeacherRelColumn(), GetTeacherColumn(),
-		GetCourseStudentRelColumn()).
+	qb.Select(GetCourseColumn(), GetCourseBaseColumn(), GetCourseTeacherRelColumn(false, false),
+		GetTeacherColumn(), GetCourseStudentRelColumn(false, true)).
 		From("course_info").
 		LeftJoin("course_base_info").On("course_base_info.course_id=course_info.course_id").
 		LeftJoin("course_teacher_rel").On("course_teacher_rel.course_id=course_info.course_id").
@@ -177,7 +179,7 @@ func ChooseCourse(rel *CourseStudentRel) error {
 		return err
 	}
 	// 构建查询对象
-	qb.Select(GetCourseColumn(), GetCourseBaseColumn(), GetCourseStudentRelColumn()).
+	qb.Select(GetCourseColumn(), GetCourseBaseColumn(), GetCourseStudentRelColumn(false, true)).
 		From("course_info").
 		LeftJoin("course_base_info").On("course_base_info.course_id=course_info.course_id").
 		LeftJoin("course_student_rel").On("course_info.course_id = course_student_rel.course_id").
