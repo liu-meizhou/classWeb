@@ -1,7 +1,8 @@
 FROM golang:1.15.6-alpine3.12
 WORKDIR /goweb
 
-COPY go.mod,go.sum .
+COPY go.mod .
+COPY go.sum .
 RUN go env -w GO111MODULE=on \
     && go env -w GOPROXY="https://goproxy.io,direct" \
     && go mod vendor

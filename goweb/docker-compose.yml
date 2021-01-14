@@ -2,6 +2,7 @@ version: '3'
 services:
   go_web:
     build: .
+    image: goweb
     container_name: go_web
     working_dir: /go_web
     volumes: 

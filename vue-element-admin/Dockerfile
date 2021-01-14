@@ -12,8 +12,8 @@ RUN npm run build:prod
 
 FROM nginx:alpine as nginx
 
-COPY --from=frontend nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=frontend dist/* /usr/share/nginx/html
+COPY --from=frontend /vue-admin/nginx-docker.conf /etc/nginx/conf.d/default.conf
+COPY --from=frontend /vue-admin/dist/ /usr/share/nginx/html
 
 CMD ["nginx", "-g", "daemon off;"]
 
