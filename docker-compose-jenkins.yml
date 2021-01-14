@@ -1,0 +1,20 @@
+  # 在当前目录下执行 docker-compose -f docker-compose-jenkins.yml up -d 进行jenkins容器启动
+  # 自动化部署
+version: '3'
+
+
+services:
+  jenkins:
+    image: ${JENKINS_IMAGE}
+    container_name: jenkins
+    user: ${JENKINS_USER}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${JENKINS_HOME}:/var/jenkins_home/
+      - ${JENKINS_SOURCE_PATH}:${JENKINS_TARGET_PATH}
+      - ${GIT_SSH_PATH}:/${JENKINS_USER}/.ssh/
+      - ${DOCKER_COMPOSE_PATH}:/usr/local/bin/docker-compose
+      - ${DOCKER_PATH}:/usr/bin/docker
+    ports:
+      - "${JENKINS_OPEN_PORT}:8080"
+      - "50000:50000"

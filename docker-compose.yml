@@ -19,16 +19,11 @@ services:
       - class_web_net
     ports:
       - "${GO_WEB_PORT}:8080"
-    depends_on: 
-      - postgresql
     command: 
       - sh
       - -c 
       - |
-        go env -w GO111MODULE=on
-        go env -w GOPROXY="https://goproxy.io,direct"
-        go mod tidy
-        go mod vendor
+        sh is_env_has_change.sh
         go build -o main main.go
         ./main
   
@@ -45,13 +40,14 @@ services:
       - sh
       - -c
       - |
-        npm install --registry=https://registry.npm.taobao.org
+        sh is_env_has_change.sh
         npm run build:prod
 
   # 前端
   vue_admin_nginx:
     image: ${VUE_ADMIN_NGINX_IMAGE}
     container_name: vue_admin_nginx
+    working_dir: /vue-admin
     restart: always
     volumes: 
       - ./vue-element-admin:/vue-admin
@@ -61,13 +57,15 @@ services:
       - class_web_net
     ports: 
       - "${VUE_ADMIN_NGINX_PORT}:80"
+    depends_on: 
+      - vue_admin_env
     command: 
       - sh
       - -c
       - |
-        sh /vue-admin/is_vue_env_ok.sh
-        cp /vue-admin/nginx.conf /etc/nginx/conf.d/default.conf
-        cp -r /vue-admin/dist/* /usr/share/nginx/html
+        sh wait_node_env_end.sh
+        cp nginx.conf /etc/nginx/conf.d/default.conf
+        cp -r dist/* /usr/share/nginx/html
         nginx -g "daemon off;"
         
   # 数据库
@@ -87,18 +85,3 @@ services:
     volumes:
       - ${POSTGRES_SOURCE_PATH}:/var/lib/postgresql/data
 
-  # 自动化部署
-  jenkins:
-    image: ${JENKINS_IMAGE}
-    container_name: jenkins
-    user: ${JENKINS_USER}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ${JENKINS_HOME}:/var/jenkins_home/
-      - ${JENKINS_SOURCE_PATH}:${JENKINS_TARGET_PATH}
-      - ${GIT_SSH_PATH}:/${JENKINS_USER}/.ssh/
-      - ${DOCKER_COMPOSE_PATH}:/usr/local/bin/docker-compose
-      - ${DOCKER_PATH}:/usr/bin/docker
-    ports:
-      - "${JENKINS_OPEN_PORT}:8080"
-      - "50000:50000"
