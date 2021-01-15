@@ -1,5 +1,5 @@
 FROM golang:1.15.6-alpine3.12
-WORKDIR /goweb
+WORKDIR /go_web
 
 COPY go.mod .
 COPY go.sum .
@@ -13,8 +13,8 @@ RUN go env -w GO111MODULE=on \
 CMD go build -o main main.go && ./main
 
 # 如docker启动
-# docker build -t goweb .
-# docker run -d -p 8080:8080 -v ~/project/classWeb/goweb:/goweb -e TZ=Asia/Shanghai --name go_web goweb
+# docker build -t go_web .
+# docker run -d -p 8080:8080 -v ~/project/classWeb/goweb:/go_web -e TZ=Asia/Shanghai --name go_web go_web
 
 # 用docker-compose启动
 # docker-compose up -d

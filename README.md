@@ -88,7 +88,7 @@
   - docker容器需要启动Jenkins,这里提供一套Jenkins的启动方案
     1. `git clone https://github.com/liu-meizhou/classWeb.git`(建议clone到`~/project/`)
     2. `cd classWeb`
-    3. `docker-compose up -d -f docker-compose-jenkins.yml`
+    3. `docker-compose -f docker-compose-jenkins.yml up -d`
   - 需要当前目录在`~/project`下
 - 步骤
   1. `git clone https://github.com/liu-meizhou/classWeb.git`

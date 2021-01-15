@@ -1,0 +1,16 @@
+pipeline {
+  agent none
+
+  stages {
+    stage('goweb') {
+      agent any
+      steps {
+
+        echo 'starting goweb...'
+        sh 'sh ./restart_go_web.sh'
+	    echo 'started goweb'
+
+      }
+    }
+  }
+}

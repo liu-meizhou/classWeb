@@ -1,0 +1,16 @@
+pipeline {
+  agent none
+
+  stages {
+    stage('vue_admin') {
+      agent any
+      steps {
+
+        echo 'starting vue_admin...'
+        sh 'sh ./restart_vue_admin.sh'
+	    echo 'started vue_admin'
+
+      }
+    }
+  }
+}

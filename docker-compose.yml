@@ -1,7 +1,13 @@
 version: '3'
 
+# 下面service固定ip
+# 防止重启 -> 导致ip改变 -> 其他容器本地DNS缓存无改变 -> 导致无法解析域名 -> 容器之间无法通信
 networks:
   class_web_net:
+    ipam: 
+      config:
+      - subnet: 172.19.0.0/16
+        gateway: 172.19.0.1
 
 services:
 
@@ -16,7 +22,8 @@ services:
     environment: 
       - TZ=${SERVICE_AREA}
     networks: 
-      - class_web_net
+      class_web_net:
+        ipv4_address: 172.19.0.100
     ports:
       - "${GO_WEB_PORT}:8080"
     command: 
@@ -32,7 +39,8 @@ services:
     image: ${VUE_ADMIN_ENV_IMAGE}
     container_name: vue_admin_env
     networks: 
-      - class_web_net
+      class_web_net:
+        ipv4_address: 172.19.0.106
     working_dir: /vue-admin
     volumes: 
       - ./vue-element-admin:/vue-admin
@@ -54,7 +62,8 @@ services:
     environment: 
       - TZ=${SERVICE_AREA}
     networks: 
-      - class_web_net
+      class_web_net:
+        ipv4_address: 172.19.0.101
     ports: 
       - "${VUE_ADMIN_NGINX_PORT}:80"
     depends_on: 
@@ -74,7 +83,8 @@ services:
     container_name: postgresql
     restart: always
     networks: 
-      - class_web_net
+      class_web_net:
+        ipv4_address: 172.19.0.102
     ports:
       - ${POSTGRES_PORT}:5432
     environment:
